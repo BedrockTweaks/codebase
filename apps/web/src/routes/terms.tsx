@@ -1,9 +1,14 @@
-import { Link } from '@/theming/components/link';
+import { Link } from '@/theming/components';
 import { Box, Container, Heading, List, Text, VStack } from '@chakra-ui/react';
 import { createFileRoute } from '@tanstack/react-router';
 import { JSX } from 'react';
 
-export const Route = createFileRoute('/terms')({ component: Terms });
+export const Route = createFileRoute('/terms')({
+  component: Terms,
+  staticData: {
+    title: 'Bedrock Tweaks - Terms and Conditions',
+  },
+});
 
 function Terms(): JSX.Element {
   return (

@@ -1,7 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { JSX } from 'react';
 
-export const Route = createFileRoute('/addons')({ component: Addons });
+export const Route = createFileRoute('/addons')({
+  component: Addons,
+  staticData: {
+    title: 'Bedrock Tweaks - Addons',
+  },
+});
 
 function Addons(): JSX.Element {
   return (

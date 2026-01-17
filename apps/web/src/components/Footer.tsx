@@ -1,4 +1,4 @@
-import { Link } from '@/theming/components/link';
+import { Link } from '@/theming/components';
 import { Flex, Text } from '@chakra-ui/react';
 import { FaDiscord } from 'react-icons/fa';
 import { JSX } from 'react';

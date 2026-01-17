@@ -2,7 +2,7 @@ import { useAddons } from '@/hooks/api/useAddons';
 import { useCraftingTweaks } from '@/hooks/api/useCraftingTweaks';
 import { useResourcePacks } from '@/hooks/api/useResourcePacks';
 import { Section, type Category, type Pack } from '@/models';
-import { Link } from '@/theming/components/link';
+import { Link } from '@/theming/components';
 import { Circle, Flex, Grid, GridItem, Heading, Image, SimpleGrid, Stack, Text, VStack } from '@chakra-ui/react';
 import { createFileRoute } from '@tanstack/react-router';
 import { JSX, useMemo } from 'react';

@@ -1,9 +1,14 @@
-import { Link } from '@/theming/components/link';
+import { Link } from '@/theming/components';
 import { Box, Container, Heading, List, Text, VStack } from '@chakra-ui/react';
 import { createFileRoute } from '@tanstack/react-router';
 import { JSX } from 'react';
 
-export const Route = createFileRoute('/privacy')({ component: Privacy });
+export const Route = createFileRoute('/privacy')({
+  component: Privacy,
+  staticData: {
+    title: 'Bedrock Tweaks - Privacy Policy',
+  },
+});
 
 function Privacy(): JSX.Element {
   return (

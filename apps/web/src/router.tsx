@@ -1,4 +1,4 @@
-import { InternalServerErrorPage, NotFoundPage } from '@/components/common';
+import { InternalServerErrorPage, NotFoundPage } from '@/components/Error';
 import * as Sentry from '@sentry/tanstackstart-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createRouter } from '@tanstack/react-router';

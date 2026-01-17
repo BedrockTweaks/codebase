@@ -1,7 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { JSX } from 'react';
 
-export const Route = createFileRoute('/resource-packs')({ component: ResourcePacks });
+export const Route = createFileRoute('/resource-packs')({
+  component: ResourcePacks,
+  staticData: {
+    title: 'Bedrock Tweaks - Resource Packs',
+  },
+});
 
 function ResourcePacks(): JSX.Element {
   return (
