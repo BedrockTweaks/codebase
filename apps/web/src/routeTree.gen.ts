@@ -9,8 +9,50 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as ResourcePacksRouteImport } from './routes/resource-packs'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as GithubRouteImport } from './routes/github'
+import { Route as DiscordRouteImport } from './routes/discord'
+import { Route as CraftingTweaksRouteImport } from './routes/crafting-tweaks'
+import { Route as AddonsRouteImport } from './routes/addons'
 import { Route as IndexRouteImport } from './routes/index'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResourcePacksRoute = ResourcePacksRouteImport.update({
+  id: '/resource-packs',
+  path: '/resource-packs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GithubRoute = GithubRouteImport.update({
+  id: '/github',
+  path: '/github',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DiscordRoute = DiscordRouteImport.update({
+  id: '/discord',
+  path: '/discord',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CraftingTweaksRoute = CraftingTweaksRouteImport.update({
+  id: '/crafting-tweaks',
+  path: '/crafting-tweaks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AddonsRoute = AddonsRouteImport.update({
+  id: '/addons',
+  path: '/addons',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +61,130 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/addons': typeof AddonsRoute
+  '/crafting-tweaks': typeof CraftingTweaksRoute
+  '/discord': typeof DiscordRoute
+  '/github': typeof GithubRoute
+  '/privacy': typeof PrivacyRoute
+  '/resource-packs': typeof ResourcePacksRoute
+  '/terms': typeof TermsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/addons': typeof AddonsRoute
+  '/crafting-tweaks': typeof CraftingTweaksRoute
+  '/discord': typeof DiscordRoute
+  '/github': typeof GithubRoute
+  '/privacy': typeof PrivacyRoute
+  '/resource-packs': typeof ResourcePacksRoute
+  '/terms': typeof TermsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/addons': typeof AddonsRoute
+  '/crafting-tweaks': typeof CraftingTweaksRoute
+  '/discord': typeof DiscordRoute
+  '/github': typeof GithubRoute
+  '/privacy': typeof PrivacyRoute
+  '/resource-packs': typeof ResourcePacksRoute
+  '/terms': typeof TermsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/addons'
+    | '/crafting-tweaks'
+    | '/discord'
+    | '/github'
+    | '/privacy'
+    | '/resource-packs'
+    | '/terms'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/addons'
+    | '/crafting-tweaks'
+    | '/discord'
+    | '/github'
+    | '/privacy'
+    | '/resource-packs'
+    | '/terms'
+  id:
+    | '__root__'
+    | '/'
+    | '/addons'
+    | '/crafting-tweaks'
+    | '/discord'
+    | '/github'
+    | '/privacy'
+    | '/resource-packs'
+    | '/terms'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AddonsRoute: typeof AddonsRoute
+  CraftingTweaksRoute: typeof CraftingTweaksRoute
+  DiscordRoute: typeof DiscordRoute
+  GithubRoute: typeof GithubRoute
+  PrivacyRoute: typeof PrivacyRoute
+  ResourcePacksRoute: typeof ResourcePacksRoute
+  TermsRoute: typeof TermsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/resource-packs': {
+      id: '/resource-packs'
+      path: '/resource-packs'
+      fullPath: '/resource-packs'
+      preLoaderRoute: typeof ResourcePacksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/github': {
+      id: '/github'
+      path: '/github'
+      fullPath: '/github'
+      preLoaderRoute: typeof GithubRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/discord': {
+      id: '/discord'
+      path: '/discord'
+      fullPath: '/discord'
+      preLoaderRoute: typeof DiscordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/crafting-tweaks': {
+      id: '/crafting-tweaks'
+      path: '/crafting-tweaks'
+      fullPath: '/crafting-tweaks'
+      preLoaderRoute: typeof CraftingTweaksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/addons': {
+      id: '/addons'
+      path: '/addons'
+      fullPath: '/addons'
+      preLoaderRoute: typeof AddonsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,6 +197,13 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AddonsRoute: AddonsRoute,
+  CraftingTweaksRoute: CraftingTweaksRoute,
+  DiscordRoute: DiscordRoute,
+  GithubRoute: GithubRoute,
+  PrivacyRoute: PrivacyRoute,
+  ResourcePacksRoute: ResourcePacksRoute,
+  TermsRoute: TermsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

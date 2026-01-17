@@ -122,3 +122,26 @@ cd apps/web && pnpm typegen
 - **Icons**: `lucide-react` for icon components
 - **Nitro**: Backend runtime (via `nitro-nightly` package)
 - **Emotion**: Used internally by Chakra UI v3 (peer dependency)
+
+## Error Monitoring & Instrumentation
+
+### Sentry Integration
+- **Client-side**: Initialized in `src/router.tsx` (only when `!router.isServer`)
+- **Server-side**: Initialized in `instrument.server.mjs`
+- **Environment Variable**: `VITE_SENTRY_DSN` (required for production)
+
+### Instrumenting Server Functions
+For server functions (e.g., `createServerFn`), wrap lengthy operations with `Sentry.startSpan`:
+
+```tsx
+import * as Sentry from '@sentry/tanstackstart-react'
+
+const myServerFn = createServerFn().handler(async () => {
+  return Sentry.startSpan({ name: 'Fetching data' }, async () => {
+    const data = await fetch('https://api.example.com/data/')
+    return data.json()
+  })
+})
+```
+
+This provides detailed performance metrics and error tracking for server operations.

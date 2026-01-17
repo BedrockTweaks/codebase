@@ -13,6 +13,7 @@
     "eslint",
     "start",
     "nitro",
+    "sentry",
     "tanstack-query"
   ]
 }
