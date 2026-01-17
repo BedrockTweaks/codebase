@@ -1,0 +1,63 @@
+{
+	"eslint.workingDirectories": [
+		{
+			"mode": "auto"
+		}
+	],
+	"files.eol": "\n",
+	"editor.formatOnSave": false,
+	"editor.codeActionsOnSave": {
+		"source.fixAll": "explicit",
+		"source.fixAll.eslint": "explicit"
+	},
+	"editor.detectIndentation": false,
+	"editor.insertSpaces": true,
+	"editor.tabSize": 2,
+	"[typescript]": {
+		"editor.defaultFormatter": "dbaeumer.vscode-eslint",
+		"editor.insertSpaces": true,
+		"editor.tabSize": 2
+	},
+	"[typescriptreact]": {
+		"editor.defaultFormatter": "dbaeumer.vscode-eslint",
+		"editor.insertSpaces": true,
+		"editor.tabSize": 2
+	},
+	"[json]": {
+		"editor.defaultFormatter": "vscode.json-language-features",
+		"editor.insertSpaces": false,
+		"editor.tabSize": 4
+	},
+	"[jsonc]": {
+		"editor.defaultFormatter": "vscode.json-language-features",
+		"editor.insertSpaces": false,
+		"editor.tabSize": 4
+	},
+	"files.associations": {
+		"*.json": "jsonc"
+	},
+	"eslint.validate": [
+		"typescript",
+		"typescriptreact",
+		"json",
+		"jsonc",
+	],
+	"eslint.run": "onSave",
+	"eslint.enable": true,
+	"eslint.format.enable": true,
+	"npm.packageManager": "pnpm",
+	"files.watcherExclude": {
+		"**/routeTree.gen.ts": true
+	},
+	"search.exclude": {
+		"**/routeTree.gen.ts": true
+	},
+	"files.readonlyInclude": {
+		"**/routeTree.gen.ts": true
+	},
+	"github.copilot.chat.commitMessageGeneration.instructions": [
+		{
+			"file": ".github/copilot-commit-instructions.md"
+		}
+	]
+}
