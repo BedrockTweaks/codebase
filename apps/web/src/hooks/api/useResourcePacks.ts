@@ -1,32 +1,24 @@
-import { Section, type DownloadRequest, type SectionResponse } from '@/models';
+import { type DownloadRequest, type SectionResponse } from '@/models';
 import { downloadPacks, fetchSectionData } from '@/utils/api';
 import {
   queryOptions,
   useMutation,
-  useQuery,
-  type UndefinedInitialDataOptions,
+  useSuspenseQuery,
+  UseSuspenseQueryResult,
   type UseMutationResult,
-  type UseQueryResult,
 } from '@tanstack/react-query';
 
-export function resourcePacksQueryOptions(): UndefinedInitialDataOptions<
-  SectionResponse,
-  Error,
-  SectionResponse,
-  readonly ['resource-packs']
-> {
-  return queryOptions({
-    queryKey: ['resource-packs'] as const,
-    queryFn: () => fetchSectionData(Section.ResourcePacks),
-  });
-}
+export const resourcePacksQueryOptions = queryOptions({
+  queryKey: ['resource-packs'] as const,
+  queryFn: () => fetchSectionData('resource-packs'),
+});
 
 /**
  * Fetch all resource packs
  * Endpoint: GET /api/resource-packs
  */
-export function useResourcePacks(): UseQueryResult<SectionResponse, Error> {
-  return useQuery(resourcePacksQueryOptions());
+export function useResourcePacks(): UseSuspenseQueryResult<SectionResponse, Error> {
+  return useSuspenseQuery(resourcePacksQueryOptions);
 }
 
 /**
@@ -35,6 +27,6 @@ export function useResourcePacks(): UseQueryResult<SectionResponse, Error> {
  */
 export function useDownloadResourcePacks(): UseMutationResult<Blob, Error, DownloadRequest> {
   return useMutation({
-    mutationFn: (data: DownloadRequest) => downloadPacks(Section.ResourcePacks, data),
+    mutationFn: (data: DownloadRequest) => downloadPacks('resource-packs', data),
   });
 }

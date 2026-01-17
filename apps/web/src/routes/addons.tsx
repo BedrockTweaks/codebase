@@ -1,8 +1,10 @@
+import { addonsQueryOptions } from '@/hooks/api/useAddons';
 import { createFileRoute } from '@tanstack/react-router';
 import { JSX } from 'react';
 
 export const Route = createFileRoute('/addons')({
   component: Addons,
+  loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(addonsQueryOptions),
   staticData: {
     title: 'Bedrock Tweaks - Addons',
   },

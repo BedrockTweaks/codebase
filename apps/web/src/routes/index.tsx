@@ -1,4 +1,3 @@
-import { useAddons } from '@/hooks/api/useAddons';
 import { useCraftingTweaks } from '@/hooks/api/useCraftingTweaks';
 import { useResourcePacks } from '@/hooks/api/useResourcePacks';
 import { Section, type Category, type Pack } from '@/models';
@@ -12,11 +11,11 @@ export const Route = createFileRoute('/')({ component: Landing });
 
 function Landing(): JSX.Element {
   const { data: rpData } = useResourcePacks();
-  const { data: addonsData } = useAddons();
+  // const { data: addonsData } = useAddons();
   const { data: ctData } = useCraftingTweaks();
 
   const rpImage = useMemo(() => getRandomImage(rpData?.categories ?? [], Section.ResourcePacks), [rpData]);
-  const addonsImage = useMemo(() => getRandomImage(addonsData?.categories ?? [], Section.Addons), [addonsData]);
+  // const addonsImage = useMemo(() => getRandomImage(addonsData?.categories ?? [], Section.Addons), [addonsData]);
   const ctImage = useMemo(() => getRandomImage(ctData?.categories ?? [], Section.CraftingTweaks), [ctData]);
 
   return (
@@ -50,52 +49,72 @@ function Landing(): JSX.Element {
           </VStack>
 
           {/* Three Sections Grid */}
-          <SimpleGrid columns={{ base: 1, sm: 3 }} gap={'6'} w={'full'} mt={'8'} textAlign={'center'}>
+          <SimpleGrid columns={{ base: 1, sm: 3 }} gap={{ base: '12', sm: '6' }} w={'full'} mt={'8'} textAlign={'center'}>
             {/* Resource Packs */}
-            <VStack gap={'4'} align={'center'}>
+            <VStack align={'center'} justify={'space-between'}>
               <Link to={'/resource-packs'} variant={'underline'} fontSize={{ base: 'xl', md: '2xl' }}>
                 {'Resource Packs'}
               </Link>
               {rpImage && (
-                <Image
-                  src={rpImage}
-                  alt={'Resource Pack'}
-                  boxSize={'24'}
-                  objectFit={'contain'}
-                />
+                <Link to={'/resource-packs'}>
+                  <Image
+                    src={rpImage}
+                    alt={'Resource Pack'}
+                    boxSize={'24'}
+                    objectFit={'contain'}
+                    cursor={'pointer'}
+                  />
+                </Link>
               )}
             </VStack>
 
             {/* Addons */}
-            <VStack gap={'2'} align={'center'}>
-              <Link to={'/addons'} variant={'underline'} fontSize={{ base: 'lg', md: 'xl' }}>
-                {'Addons'}
-              </Link>
-              <Text fontSize={{ base: 'base', md: 'lg' }} color={'white'}>
-                {'Equivalent to Java Data Packs'}
-              </Text>
-              {addonsImage && (
+            <VStack align={'center'} justify={'space-between'}>
+              <VStack gap={'2'}>
+                <Link to={'/addons'} variant={'underline'} fontSize={{ base: 'xl', md: '2xl' }}>
+                  {'Addons'}
+                </Link>
+                <Text fontSize={{ base: 'base', md: 'lg' }} color={'white'}>
+                  {'Equivalent to Java Data Packs'}
+                </Text>
+              </VStack>
+              {/* {addonsImage && (
+                <Link to={'/addons'}>
+                  <Image
+                    src={addonsImage}
+                    alt={'Addon'}
+                    boxSize={'24'}
+                    objectFit={'contain'}
+                    cursor={'pointer'}
+                  />
+                </Link>
+              )} */}
+              <Link to={'/addons'}>
                 <Image
-                  src={addonsImage}
+                  src={'assets/images/soontm.webp'}
                   alt={'Addon'}
                   boxSize={'24'}
                   objectFit={'contain'}
+                  cursor={'pointer'}
                 />
-              )}
+              </Link>
             </VStack>
 
             {/* Crafting Tweaks */}
-            <VStack gap={'4'} align={'center'}>
+            <VStack align={'center'} justify={'space-between'}>
               <Link to={'/crafting-tweaks'} variant={'underline'} fontSize={{ base: 'xl', md: '2xl' }}>
                 {'Crafting Tweaks'}
               </Link>
               {ctImage && (
-                <Image
-                  src={ctImage}
-                  alt={'Crafting Tweak'}
-                  boxSize={'24'}
-                  objectFit={'contain'}
-                />
+                <Link to={'/crafting-tweaks'}>
+                  <Image
+                    src={ctImage}
+                    alt={'Crafting Tweak'}
+                    boxSize={'24'}
+                    objectFit={'contain'}
+                    cursor={'pointer'}
+                  />
+                </Link>
               )}
             </VStack>
           </SimpleGrid>

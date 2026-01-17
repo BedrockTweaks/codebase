@@ -1,32 +1,24 @@
-import { Section, type DownloadRequest, type SectionResponse } from '@/models';
+import { type DownloadRequest, type SectionResponse } from '@/models';
 import { downloadPacks, fetchSectionData } from '@/utils/api';
 import {
   queryOptions,
   useMutation,
-  useQuery,
-  type UndefinedInitialDataOptions,
+  useSuspenseQuery,
+  UseSuspenseQueryResult,
   type UseMutationResult,
-  type UseQueryResult,
 } from '@tanstack/react-query';
 
-export function addonsQueryOptions(): UndefinedInitialDataOptions<
-  SectionResponse,
-  Error,
-  SectionResponse,
-  readonly ['addons']
-> {
-  return queryOptions({
-    queryKey: ['addons'] as const,
-    queryFn: () => fetchSectionData(Section.Addons),
-  });
-}
+export const addonsQueryOptions = queryOptions({
+  queryKey: ['addons'] as const,
+  queryFn: () => fetchSectionData('addons'),
+});
 
 /**
  * Fetch all addons
  * Endpoint: GET /api/addons
  */
-export function useAddons(): UseQueryResult<SectionResponse, Error> {
-  return useQuery(addonsQueryOptions());
+export function useAddons(): UseSuspenseQueryResult<SectionResponse, Error> {
+  return useSuspenseQuery(addonsQueryOptions);
 }
 
 /**
@@ -35,6 +27,6 @@ export function useAddons(): UseQueryResult<SectionResponse, Error> {
  */
 export function useDownloadAddons(): UseMutationResult<Blob, Error, DownloadRequest> {
   return useMutation({
-    mutationFn: (data: DownloadRequest) => downloadPacks(Section.Addons, data),
+    mutationFn: (data: DownloadRequest) => downloadPacks('addons', data),
   });
 }

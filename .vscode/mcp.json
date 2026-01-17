@@ -19,6 +19,9 @@
 				"-y",
 				"@upstash/context7-mcp"
 			]
+		},
+		"tanstack": {
+			"url": "https://tanstack.com/api/mcp"
 		}
 	},
 	"inputs": []

@@ -1,32 +1,24 @@
-import { Section, type DownloadRequest, type SectionResponse } from '@/models';
+import { type DownloadRequest, type SectionResponse } from '@/models';
 import { downloadPacks, fetchSectionData } from '@/utils/api';
 import {
   queryOptions,
   useMutation,
-  useQuery,
-  type UndefinedInitialDataOptions,
+  useSuspenseQuery,
+  UseSuspenseQueryResult,
   type UseMutationResult,
-  type UseQueryResult,
 } from '@tanstack/react-query';
 
-export function craftingTweaksQueryOptions(): UndefinedInitialDataOptions<
-  SectionResponse,
-  Error,
-  SectionResponse,
-  readonly ['crafting-tweaks']
-> {
-  return queryOptions({
-    queryKey: ['crafting-tweaks'] as const,
-    queryFn: () => fetchSectionData(Section.CraftingTweaks),
-  });
-}
+export const craftingTweaksQueryOptions = queryOptions({
+  queryKey: ['crafting-tweaks'] as const,
+  queryFn: () => fetchSectionData('crafting-tweaks'),
+});
 
 /**
  * Fetch all crafting tweaks
  * Endpoint: GET /api/crafting-tweaks
  */
-export function useCraftingTweaks(): UseQueryResult<SectionResponse, Error> {
-  return useQuery(craftingTweaksQueryOptions());
+export function useCraftingTweaks(): UseSuspenseQueryResult<SectionResponse, Error> {
+  return useSuspenseQuery(craftingTweaksQueryOptions);
 }
 
 /**
@@ -35,6 +27,6 @@ export function useCraftingTweaks(): UseQueryResult<SectionResponse, Error> {
  */
 export function useDownloadCraftingTweaks(): UseMutationResult<Blob, Error, DownloadRequest> {
   return useMutation({
-    mutationFn: (data: DownloadRequest) => downloadPacks(Section.CraftingTweaks, data),
+    mutationFn: (data: DownloadRequest) => downloadPacks('crafting-tweaks', data),
   });
 }

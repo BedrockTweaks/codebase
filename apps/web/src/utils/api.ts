@@ -1,4 +1,4 @@
-import type { SectionResponse, DownloadRequest, Section } from '@/models';
+import type { DownloadRequest, SectionResponse } from '@/models';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
@@ -6,7 +6,7 @@ const API_URL = import.meta.env.VITE_API_URL || '';
  * Fetch section data (resource-packs, addons, or crafting-tweaks)
  * @param section - The section endpoint name
  */
-export async function fetchSectionData(section: Section): Promise<SectionResponse> {
+export async function fetchSectionData(section: string): Promise<SectionResponse> {
   const response = await fetch(`${API_URL}/api/${section}`);
 
   if (!response.ok) {
@@ -21,7 +21,7 @@ export async function fetchSectionData(section: Section): Promise<SectionRespons
  * @param section - The section endpoint name
  * @param data - Download request with selected categories and packs
  */
-export async function downloadPacks(section: Section, data: DownloadRequest): Promise<Blob> {
+export async function downloadPacks(section: string, data: DownloadRequest): Promise<Blob> {
   const response = await fetch(`${API_URL}/api/${section}`, {
     method: 'POST',
     headers: {
