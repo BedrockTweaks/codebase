@@ -1,4 +1,4 @@
-import { Box, Flex, Image, Text } from '@chakra-ui/react';
+import { AbsoluteCenter, Box, Flex, Image, Text } from '@chakra-ui/react';
 import { Link } from '@/theming/components';
 import { JSX } from 'react';
 
@@ -15,10 +15,10 @@ export default function Header(): JSX.Element {
       px={{ base: '2', sm: '8' }}
       bg={'black'}
     >
-      <Flex align={'center'} height={'full'} gap={{ base: '2', sm: '4' }}>
-        {/* Logo Section */}
-        <Box width={'auto'}>
-          <a href={'https://drav.dev'}>
+      <Flex align={'center'} justifyContent={'space-between'} height={'full'} gap={{ base: '2', sm: '4' }} position={'relative'}>
+        {/* Logo */}
+        <Box display={'flex'} justifyContent={'center'} zIndex={'1'} w={{ base: 'auto', md: '20%' }}>
+          <a href={'https://drav.dev'} style={{ display: 'flex' }}>
             <Image
               src={'/assets/images/drav_dev-white.svg'}
               alt={'drav_dev'}
@@ -34,10 +34,10 @@ export default function Header(): JSX.Element {
           </a>
         </Box>
 
-        {/* Title Section */}
-        <Box flex={'1'} textAlign={'center'}>
+        {/* Title */}
+        <AbsoluteCenter axis={'horizontal'}>
           <Text
-            fontSize={{ base: '2xl', md: '4xl' }}
+            fontSize={{ base: '3xl', md: '4xl' }}
             fontWeight={'semibold'}
             color={'white'}
           >
@@ -45,25 +45,25 @@ export default function Header(): JSX.Element {
               {'Bedrock Tweaks'}
             </Link>
           </Text>
-        </Box>
+        </AbsoluteCenter>
 
-        {/* Navigation Menu */}
+        {/* Navigation */}
         <Flex
-          gap={{ base: '2', sm: '5' }}
+          gap={{ base: '4', md: '8' }}
           align={'center'}
           color={'white'}
-          fontSize={{ base: 'sm', lg: 'md' }}
+          zIndex={'1'}
         >
           <Link to={'/resource-packs'} variant={'nav'}>
             <Text hideBelow={'lg'}>{'Resource Packs'}</Text>
-            <Text hideFrom={'lg'}>{'RP'}</Text>
+            <Text hideFrom={'lg'}>{'RP\'s'}</Text>
           </Link>
           <Link to={'/addons'} variant={'nav'}>
             <Text>{'Addons'}</Text>
           </Link>
           <Link to={'/crafting-tweaks'} variant={'nav'}>
             <Text hideBelow={'lg'}>{'Crafting Tweaks'}</Text>
-            <Text hideFrom={'lg'}>{'CT'}</Text>
+            <Text hideFrom={'lg'}>{'CT\'s'}</Text>
           </Link>
         </Flex>
       </Flex>

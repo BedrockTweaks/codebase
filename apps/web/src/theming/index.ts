@@ -55,6 +55,11 @@ const config = defineConfig({
       },
     },
   },
+  globalCss: {
+    html: {
+      fontSize: '14px',
+    },
+  },
 });
 
 export const system = createSystem(defaultConfig, config);

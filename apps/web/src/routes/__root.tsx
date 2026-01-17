@@ -8,7 +8,7 @@ import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools';
 import { TanStackDevtools } from '@tanstack/react-devtools';
 import type { QueryClient } from '@tanstack/react-query';
 import { JSX } from 'react';
-import { ChakraProvider } from '@chakra-ui/react';
+import { Box, ChakraProvider, Flex } from '@chakra-ui/react';
 import { system } from '@/theming';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -120,9 +120,20 @@ function RootDocument({ children }: { children: React.ReactNode }): JSX.Element 
         </noscript>
 
         <ChakraProvider value={system}>
-          <Header />
-          {children}
-          <Footer />
+          <Flex
+            direction={'column'}
+            minH={'100vh'}
+            bgImage={'url(/assets/images/background.png)'}
+            bgSize={'cover'}
+            bgPos={'center'}
+            bgAttachment={'fixed'}
+          >
+            <Header />
+            <Box flex={1}>
+              {children}
+            </Box>
+            <Footer />
+          </Flex>
         </ChakraProvider>
 
         <TanStackDevtools

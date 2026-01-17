@@ -1,53 +1,153 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
-import { JSX } from 'react';
+import { useAddons } from '@/hooks/api/useAddons';
+import { useCraftingTweaks } from '@/hooks/api/useCraftingTweaks';
+import { useResourcePacks } from '@/hooks/api/useResourcePacks';
+import { Section, type Category, type Pack } from '@/models';
+import { Link } from '@/theming/components/link';
+import { Circle, Flex, Grid, GridItem, Heading, Image, SimpleGrid, Stack, Text, VStack } from '@chakra-ui/react';
+import { createFileRoute } from '@tanstack/react-router';
+import { JSX, useMemo } from 'react';
+import { FaDiscord, FaGithub } from 'react-icons/fa';
 
-export const Route = createFileRoute('/')({ component: Home });
+export const Route = createFileRoute('/')({ component: Landing });
 
-function Home(): JSX.Element {
+function Landing(): JSX.Element {
+  const { data: rpData } = useResourcePacks();
+  const { data: addonsData } = useAddons();
+  const { data: ctData } = useCraftingTweaks();
+
+  const rpImage = useMemo(() => getRandomImage(rpData?.categories ?? [], Section.ResourcePacks), [rpData]);
+  const addonsImage = useMemo(() => getRandomImage(addonsData?.categories ?? [], Section.Addons), [addonsData]);
+  const ctImage = useMemo(() => getRandomImage(ctData?.categories ?? [], Section.CraftingTweaks), [ctData]);
+
   return (
-    <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
-      <h1>{'Bedrock Tweaks'}</h1>
-      <p>{'Temporary navigation page - links to all routes:'}</p>
+    <Grid templateColumns={{ base: '1fr', md: '1fr 2fr 1fr' }} gap={'0'} pt={'20'} pb={'auto'}>
+      {/* Left Ad Column - Hidden on mobile */}
+      <GridItem hideBelow={'md'}>
+        <Flex justify={'center'} align={'start'} p={'4'}>
+          {/* Ad space */}
+        </Flex>
+      </GridItem>
 
-      <nav>
-        <ul style={{ listStyle: 'none', padding: 0 }}>
-          <li style={{ marginBottom: '1rem' }}>
-            <Link to={'/resource-packs'} style={{ color: '#630000', fontSize: '1.2rem', textDecoration: 'underline' }}>
-              {'Resource Packs'}
+      {/* Main Content */}
+      <GridItem>
+        <VStack gap={'8'} py={'10'} px={'4'}>
+          {/* Logo */}
+          <Image src={'/assets/images/logo-white.svg'} alt={'Bedrock Tweaks'} maxW={'full'} my={'5'} />
+
+          {/* Title and Subtitle */}
+          <VStack gap={'4'} textAlign={'center'}>
+            <Heading as={'h1'} fontSize={{ base: '3xl', md: '4xl' }} fontWeight={'medium'} lineHeight={'normal'} color={'white'}>
+              {'A Complete Unofficial Port of Vanilla Tweaks to Minecraft Bedrock Edition'}
+            </Heading>
+            <Heading as={'h2'} fontSize={{ base: '2xl', md: '3xl' }} color={'white'} fontWeight={'normal'}>
+              {'Official Website: '}
+              <Link asChild variant={'underline'} target={'_blank'} rel={'noopener noreferrer'}>
+                <a href={'https://vanillatweaks.net'}>
+                  {'Vanilla Tweaks'}
+                </a>
+              </Link>
+            </Heading>
+          </VStack>
+
+          {/* Three Sections Grid */}
+          <SimpleGrid columns={{ base: 1, sm: 3 }} gap={'6'} w={'full'} mt={'8'} textAlign={'center'}>
+            {/* Resource Packs */}
+            <VStack gap={'4'} align={'center'}>
+              <Link to={'/resource-packs'} variant={'underline'} fontSize={{ base: 'xl', md: '2xl' }}>
+                {'Resource Packs'}
+              </Link>
+              {rpImage && (
+                <Image
+                  src={rpImage}
+                  alt={'Resource Pack'}
+                  boxSize={'24'}
+                  objectFit={'contain'}
+                />
+              )}
+            </VStack>
+
+            {/* Addons */}
+            <VStack gap={'2'} align={'center'}>
+              <Link to={'/addons'} variant={'underline'} fontSize={{ base: 'lg', md: 'xl' }}>
+                {'Addons'}
+              </Link>
+              <Text fontSize={{ base: 'base', md: 'lg' }} color={'white'}>
+                {'Equivalent to Java Data Packs'}
+              </Text>
+              {addonsImage && (
+                <Image
+                  src={addonsImage}
+                  alt={'Addon'}
+                  boxSize={'24'}
+                  objectFit={'contain'}
+                />
+              )}
+            </VStack>
+
+            {/* Crafting Tweaks */}
+            <VStack gap={'4'} align={'center'}>
+              <Link to={'/crafting-tweaks'} variant={'underline'} fontSize={{ base: 'xl', md: '2xl' }}>
+                {'Crafting Tweaks'}
+              </Link>
+              {ctImage && (
+                <Image
+                  src={ctImage}
+                  alt={'Crafting Tweak'}
+                  boxSize={'24'}
+                  objectFit={'contain'}
+                />
+              )}
+            </VStack>
+          </SimpleGrid>
+
+          {/* Discord and GitHub Links */}
+          <Stack gap={'5'} mt={'10'} align={'center'}>
+            <Link to={'/discord'} preload={false} variant={'underline'}>
+              <Flex align={'center'} gap={'2'}>
+                <Text fontSize={{ base: 'lg', md: 'xl' }}>{'Join the Discord!'}</Text>
+                <Circle size={'10'} bg={'black'}>
+                  <FaDiscord size={24} color={'white'} />
+                </Circle>
+              </Flex>
             </Link>
-          </li>
-          <li style={{ marginBottom: '1rem' }}>
-            <Link to={'/addons'} style={{ color: '#630000', fontSize: '1.2rem', textDecoration: 'underline' }}>
-              {'Addons'}
+            <Link to={'/github'} preload={false} variant={'underline'}>
+              <Flex align={'center'} gap={'2'}>
+                <Text fontSize={{ base: 'lg', md: 'xl' }}>{'Contribute in GitHub!'}</Text>
+                <Circle size={'10'} bg={'black'}>
+                  <FaGithub size={24} color={'white'} />
+                </Circle>
+              </Flex>
             </Link>
-          </li>
-          <li style={{ marginBottom: '1rem' }}>
-            <Link to={'/crafting-tweaks'} style={{ color: '#630000', fontSize: '1.2rem', textDecoration: 'underline' }}>
-              {'Crafting Tweaks'}
-            </Link>
-          </li>
-          <li style={{ marginBottom: '1rem' }}>
-            <Link to={'/privacy'} style={{ color: '#630000', fontSize: '1.2rem', textDecoration: 'underline' }}>
-              {'Privacy Policy'}
-            </Link>
-          </li>
-          <li style={{ marginBottom: '1rem' }}>
-            <Link to={'/terms'} style={{ color: '#630000', fontSize: '1.2rem', textDecoration: 'underline' }}>
-              {'Terms of Service'}
-            </Link>
-          </li>
-          {/* <li style={{ marginBottom: '1rem' }}>
-            <Link to={'/discord'} style={{ color: '#630000', fontSize: '1.2rem', textDecoration: 'underline' }}>
-              {'Discord (redirect)'}
-            </Link>
-          </li>
-          <li style={{ marginBottom: '1rem' }}>
-            <Link to={'/github'} style={{ color: '#630000', fontSize: '1.2rem', textDecoration: 'underline' }}>
-              {'GitHub (redirect)'}
-            </Link>
-          </li> */}
-        </ul>
-      </nav>
-    </div>
+          </Stack>
+        </VStack>
+      </GridItem>
+
+      {/* Right Ad Column - Hidden on mobile */}
+      <GridItem hideBelow={'md'}>
+        <Flex justify={'center'} align={'start'} p={'4'}>
+          {/* Ad space */}
+        </Flex>
+      </GridItem>
+    </Grid>
   );
+}
+
+function getRandomImage(categories: Category[], section: Section): string {
+  if (categories.length === 0) {
+    return '';
+  }
+
+  const randomCategoryIndex = Math.floor(Math.random() * categories.length);
+  const selectedCategory = categories[randomCategoryIndex];
+
+  if (selectedCategory && selectedCategory.packs.length > 0) {
+    const randomPackIndex = Math.floor(Math.random() * selectedCategory.packs.length);
+    const selectedPack: Pack = selectedCategory.packs[randomPackIndex];
+
+    const apiUrl = import.meta.env.VITE_API_URL || '';
+
+    return `${apiUrl}/static/${section}/files/${selectedCategory.id}/${selectedPack.id}/pack_icon.png`;
+  }
+
+  return '';
 }

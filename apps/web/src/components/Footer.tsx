@@ -1,5 +1,6 @@
 import { Link } from '@/theming/components/link';
 import { Flex, Text } from '@chakra-ui/react';
+import { FaDiscord } from 'react-icons/fa';
 import { JSX } from 'react';
 
 export default function Footer(): JSX.Element {
@@ -20,7 +21,6 @@ export default function Footer(): JSX.Element {
         direction={{ base: 'column', md: 'row' }}
         align={'center'}
         gap={{ base: '2', md: '0' }}
-        fontSize={'sm'}
         fontWeight={'medium'}
       >
         <Flex align={'center'} gap={'2'}>
@@ -52,8 +52,8 @@ export default function Footer(): JSX.Element {
           {'|'}
         </Text>
 
-        <Link to={'/discord'} variant={'nav'}>
-          {'Discord'}
+        <Link to={'/discord'} preload={false} variant={'nav'} display={'flex'} alignItems={'center'} gap={'1'}>
+          <FaDiscord size={20} />
         </Link>
       </Flex>
     </Flex>

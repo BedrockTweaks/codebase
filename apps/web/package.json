@@ -26,10 +26,11 @@
     "cross-env": "^7.0.3",
     "dotenv-cli": "^11.0.0",
     "lucide-react": "^0.561.0",
-    "shx": "^0.3.4",
     "nitro": "npm:nitro-nightly@latest",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-icons": "^5.5.0",
+    "shx": "^0.3.4",
     "vite-tsconfig-paths": "^6.0.2"
   },
   "devDependencies": {

@@ -21,6 +21,10 @@ export const linkRecipe = defineRecipe({
           textDecoration: 'underline',
         },
       },
+      underline: {
+        color: 'white',
+        textDecoration: 'underline',
+      },
     },
   },
   defaultVariants: {
