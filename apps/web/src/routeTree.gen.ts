@@ -12,8 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ResourcePacksRouteImport } from './routes/resource-packs'
 import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as GithubRouteImport } from './routes/github'
-import { Route as DiscordRouteImport } from './routes/discord'
 import { Route as CraftingTweaksRouteImport } from './routes/crafting-tweaks'
 import { Route as AddonsRouteImport } from './routes/addons'
 import { Route as IndexRouteImport } from './routes/index'
@@ -31,16 +29,6 @@ const ResourcePacksRoute = ResourcePacksRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GithubRoute = GithubRouteImport.update({
-  id: '/github',
-  path: '/github',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DiscordRoute = DiscordRouteImport.update({
-  id: '/discord',
-  path: '/discord',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CraftingTweaksRoute = CraftingTweaksRouteImport.update({
@@ -63,8 +51,6 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/addons': typeof AddonsRoute
   '/crafting-tweaks': typeof CraftingTweaksRoute
-  '/discord': typeof DiscordRoute
-  '/github': typeof GithubRoute
   '/privacy': typeof PrivacyRoute
   '/resource-packs': typeof ResourcePacksRoute
   '/terms': typeof TermsRoute
@@ -73,8 +59,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/addons': typeof AddonsRoute
   '/crafting-tweaks': typeof CraftingTweaksRoute
-  '/discord': typeof DiscordRoute
-  '/github': typeof GithubRoute
   '/privacy': typeof PrivacyRoute
   '/resource-packs': typeof ResourcePacksRoute
   '/terms': typeof TermsRoute
@@ -84,8 +68,6 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/addons': typeof AddonsRoute
   '/crafting-tweaks': typeof CraftingTweaksRoute
-  '/discord': typeof DiscordRoute
-  '/github': typeof GithubRoute
   '/privacy': typeof PrivacyRoute
   '/resource-packs': typeof ResourcePacksRoute
   '/terms': typeof TermsRoute
@@ -96,8 +78,6 @@ export interface FileRouteTypes {
     | '/'
     | '/addons'
     | '/crafting-tweaks'
-    | '/discord'
-    | '/github'
     | '/privacy'
     | '/resource-packs'
     | '/terms'
@@ -106,8 +86,6 @@ export interface FileRouteTypes {
     | '/'
     | '/addons'
     | '/crafting-tweaks'
-    | '/discord'
-    | '/github'
     | '/privacy'
     | '/resource-packs'
     | '/terms'
@@ -116,8 +94,6 @@ export interface FileRouteTypes {
     | '/'
     | '/addons'
     | '/crafting-tweaks'
-    | '/discord'
-    | '/github'
     | '/privacy'
     | '/resource-packs'
     | '/terms'
@@ -127,8 +103,6 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AddonsRoute: typeof AddonsRoute
   CraftingTweaksRoute: typeof CraftingTweaksRoute
-  DiscordRoute: typeof DiscordRoute
-  GithubRoute: typeof GithubRoute
   PrivacyRoute: typeof PrivacyRoute
   ResourcePacksRoute: typeof ResourcePacksRoute
   TermsRoute: typeof TermsRoute
@@ -155,20 +129,6 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/github': {
-      id: '/github'
-      path: '/github'
-      fullPath: '/github'
-      preLoaderRoute: typeof GithubRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/discord': {
-      id: '/discord'
-      path: '/discord'
-      fullPath: '/discord'
-      preLoaderRoute: typeof DiscordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/crafting-tweaks': {
@@ -199,8 +159,6 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AddonsRoute: AddonsRoute,
   CraftingTweaksRoute: CraftingTweaksRoute,
-  DiscordRoute: DiscordRoute,
-  GithubRoute: GithubRoute,
   PrivacyRoute: PrivacyRoute,
   ResourcePacksRoute: ResourcePacksRoute,
   TermsRoute: TermsRoute,

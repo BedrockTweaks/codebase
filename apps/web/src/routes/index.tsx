@@ -102,21 +102,25 @@ function Landing(): JSX.Element {
 
           {/* Discord and GitHub Links */}
           <Stack gap={'5'} mt={'10'} align={'center'}>
-            <Link to={'/discord'} preload={false} variant={'underline'}>
-              <Flex align={'center'} gap={'2'}>
-                <Text fontSize={{ base: 'lg', md: 'xl' }}>{'Join the Discord!'}</Text>
-                <Circle size={'10'} bg={'black'}>
-                  <FaDiscord size={24} color={'white'} />
-                </Circle>
-              </Flex>
+            <Link asChild variant={'underline'} target={'_blank'} rel={'noopener noreferrer'}>
+              <a href={'/discord'}>
+                <Flex align={'center'} gap={'2'}>
+                  <Text fontSize={{ base: 'lg', md: 'xl' }}>{'Join the Discord!'}</Text>
+                  <Circle size={'10'} bg={'black'}>
+                    <FaDiscord size={24} color={'white'} />
+                  </Circle>
+                </Flex>
+              </a>
             </Link>
-            <Link to={'/github'} preload={false} variant={'underline'}>
-              <Flex align={'center'} gap={'2'}>
-                <Text fontSize={{ base: 'lg', md: 'xl' }}>{'Contribute in GitHub!'}</Text>
-                <Circle size={'10'} bg={'black'}>
-                  <FaGithub size={24} color={'white'} />
-                </Circle>
-              </Flex>
+            <Link asChild variant={'underline'} target={'_blank'} rel={'noopener noreferrer'}>
+              <a href={'/github'}>
+                <Flex align={'center'} gap={'2'}>
+                  <Text fontSize={{ base: 'lg', md: 'xl' }}>{'Contribute in GitHub!'}</Text>
+                  <Circle size={'10'} bg={'black'}>
+                    <FaGithub size={24} color={'white'} />
+                  </Circle>
+                </Flex>
+              </a>
             </Link>
           </Stack>
         </VStack>

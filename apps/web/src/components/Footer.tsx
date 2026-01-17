@@ -52,8 +52,10 @@ export default function Footer(): JSX.Element {
           {'|'}
         </Text>
 
-        <Link to={'/discord'} preload={false} variant={'nav'} display={'flex'} alignItems={'center'} gap={'1'}>
-          <FaDiscord size={20} />
+        <Link asChild variant={'nav'} target={'_blank'} rel={'noopener noreferrer'}>
+          <a href={'/discord'}>
+            <FaDiscord size={20} />
+          </a>
         </Link>
       </Flex>
     </Flex>
