@@ -8,7 +8,7 @@ export interface SectionResponse {
 }
 
 export interface DownloadRequest {
-  name: string;
+  name?: string;
   categories: CategorySelection[];
 }
 
