@@ -11,6 +11,7 @@ import { JSX } from 'react';
 import { ChakraProvider } from '@chakra-ui/react';
 import { system } from '@/theming';
 import Header from '../components/Header';
+import Footer from '../components/Footer';
 import appCss from '../styles.css?url';
 
 interface MyRouterContext {
@@ -121,7 +122,9 @@ function RootDocument({ children }: { children: React.ReactNode }): JSX.Element 
         <ChakraProvider value={system}>
           <Header />
           {children}
+          <Footer />
         </ChakraProvider>
+
         <TanStackDevtools
           config={{
             position: 'bottom-right',

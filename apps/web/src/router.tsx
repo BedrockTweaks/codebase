@@ -30,9 +30,15 @@ export const getRouter = () => {
   if (!router.isServer) {
     Sentry.init({
       dsn: import.meta.env.VITE_SENTRY_DSN,
-      integrations: [],
+      integrations: [
+        Sentry.tanstackRouterBrowserTracingIntegration(router),
+      ],
       tracesSampleRate: 1.0,
-      sendDefaultPii: true,
+      // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
+      tracePropagationTargets: ['localhost', /^https:\/\/bedrocktweaks\.net\/api/],
+      ignoreErrors: [
+        'adsbygoogle.push() error: No slot size for availableWidth=0',
+      ],
     });
   }
 

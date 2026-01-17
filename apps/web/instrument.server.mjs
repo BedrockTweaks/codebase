@@ -7,11 +7,11 @@ if (!sentryDsn) {
 } else {
   Sentry.init({
     dsn: sentryDsn,
-    // Adds request headers and IP for users, for more info visit:
-    // https://docs.sentry.io/platforms/javascript/guides/tanstackstart-react/configuration/options/#sendDefaultPii
-    sendDefaultPii: true,
     tracesSampleRate: 1.0,
-    replaysSessionSampleRate: 1.0,
-    replaysOnErrorSampleRate: 1.0,
+    // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
+    tracePropagationTargets: ['localhost', /^https:\/\/bedrocktweaks\.net\/api/],
+    ignoreErrors: [
+      'adsbygoogle.push() error: No slot size for availableWidth=0',
+    ],
   })
 }

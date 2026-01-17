@@ -36,7 +36,7 @@ function Home(): JSX.Element {
               {'Terms of Service'}
             </Link>
           </li>
-          <li style={{ marginBottom: '1rem' }}>
+          {/* <li style={{ marginBottom: '1rem' }}>
             <Link to={'/discord'} style={{ color: '#630000', fontSize: '1.2rem', textDecoration: 'underline' }}>
               {'Discord (redirect)'}
             </Link>
@@ -45,7 +45,7 @@ function Home(): JSX.Element {
             <Link to={'/github'} style={{ color: '#630000', fontSize: '1.2rem', textDecoration: 'underline' }}>
               {'GitHub (redirect)'}
             </Link>
-          </li>
+          </li> */}
         </ul>
       </nav>
     </div>
