@@ -1,8 +1,8 @@
 import type { DownloadRequest, SectionResponse } from '@/models';
 
 export const API_URL = import.meta.env.SSR
-  ? import.meta.env.VITE_API_INTERNAL_URL
-  : import.meta.env.VITE_API_PUBLIC_URL || '';
+  ? __API_INTERNAL_URL__
+  : __API_PUBLIC_URL__;
 
 const GITHUB_REPO = 'BedrockTweaks/Files';
 
