@@ -7,9 +7,13 @@ import { JSX } from 'react';
 export const Route = createFileRoute('/crafting-tweaks')({
   component: CraftingTweaks,
   loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(craftingTweaksQueryOptions),
-  staticData: {
-    title: 'Bedrock Tweaks - Crafting Tweaks',
-  },
+  head: () => ({
+    meta: [
+      {
+        title: 'Bedrock Tweaks - Crafting Tweaks',
+      },
+    ],
+  }),
 });
 
 function CraftingTweaks(): JSX.Element {

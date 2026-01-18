@@ -5,9 +5,13 @@ import { JSX } from 'react';
 
 export const Route = createFileRoute('/privacy')({
   component: Privacy,
-  staticData: {
-    title: 'Bedrock Tweaks - Privacy Policy',
-  },
+  head: () => ({
+    meta: [
+      {
+        title: 'Bedrock Tweaks - Privacy Policy',
+      },
+    ],
+  }),
 });
 
 function Privacy(): JSX.Element {

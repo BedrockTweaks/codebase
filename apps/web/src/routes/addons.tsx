@@ -6,9 +6,13 @@ import { FaDiscord } from 'react-icons/fa';
 
 export const Route = createFileRoute('/addons')({
   component: Addons,
-  staticData: {
-    title: 'Bedrock Tweaks - Addons',
-  },
+  head: () => ({
+    meta: [
+      {
+        title: 'Bedrock Tweaks - Addons',
+      },
+    ],
+  }),
 });
 
 function Addons(): JSX.Element {

@@ -7,7 +7,16 @@ import { createFileRoute } from '@tanstack/react-router';
 import { JSX, useMemo } from 'react';
 import { FaDiscord, FaGithub } from 'react-icons/fa';
 
-export const Route = createFileRoute('/')({ component: Landing });
+export const Route = createFileRoute('/')({
+  component: Landing,
+  head: () => ({
+    meta: [
+      {
+        title: 'Bedrock Tweaks',
+      },
+    ],
+  }),
+});
 
 function Landing(): JSX.Element {
   const { data: rpData } = useResourcePacks();

@@ -5,9 +5,13 @@ import { JSX } from 'react';
 
 export const Route = createFileRoute('/terms')({
   component: Terms,
-  staticData: {
-    title: 'Bedrock Tweaks - Terms and Conditions',
-  },
+  head: () => ({
+    meta: [
+      {
+        title: 'Bedrock Tweaks - Terms and Conditions',
+      },
+    ],
+  }),
 });
 
 function Terms(): JSX.Element {

@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react';
 import { UseMutationResult } from '@tanstack/react-query';
 import { JSX, useMemo, useState } from 'react';
-import { toaster } from '../toaster';
+import { toaster } from '../Toaster';
 
 interface SelectedPacksProps {
   compatibleVersions: number[];
@@ -65,7 +65,7 @@ export function SelectedPacks({ compatibleVersions, onDownload }: SelectedPacksP
       borderRadius={'xl'}
       overflow={'hidden'}
       position={'sticky'}
-      top={4}
+      top={24}
     >
       <VStack align={'stretch'} gap={0}>
         {/* Header */}

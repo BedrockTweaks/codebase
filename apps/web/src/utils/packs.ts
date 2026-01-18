@@ -32,7 +32,7 @@ export function generatePackName(section: Section, inputName: string | undefined
       break;
   }
 
-  const packName = `${prefix}-${sanitizedName}`;
+  const packName = (inputName && isValid) ? sanitizedName : `${prefix}-${sanitizedName}`;
   const fileName = `${packName}.${extension}`;
 
   return {

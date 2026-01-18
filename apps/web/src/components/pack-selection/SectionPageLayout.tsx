@@ -1,8 +1,19 @@
-import { DownloadRequest, SectionResponse } from '@/models';
-import { Box, Grid, GridItem } from '@chakra-ui/react';
-import { UseMutationResult } from '@tanstack/react-query';
-import { JSX, ReactNode } from 'react';
 import { PackSelectionProvider } from '@/contexts/PackSelectionContext';
+import { DownloadRequest, SectionResponse } from '@/models';
+import { Button } from '@/theming/components';
+import {
+  Box,
+  DialogBackdrop,
+  DialogBody,
+  DialogContent,
+  DialogPositioner,
+  DialogRoot,
+  Grid,
+  GridItem,
+  Portal,
+} from '@chakra-ui/react';
+import { UseMutationResult } from '@tanstack/react-query';
+import { JSX, ReactNode, useState } from 'react';
 import { CategoriesAccordion } from './CategoriesAccordion';
 import { SelectedPacks } from './SelectedPacks';
 
@@ -13,6 +24,8 @@ interface SectionPageLayoutProps {
 }
 
 export function SectionPageLayout({ data, downloadMutation }: SectionPageLayoutProps): JSX.Element {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   return (
     <PackSelectionProvider categories={data.categories} section={data.section}>
       <Grid
@@ -32,10 +45,36 @@ export function SectionPageLayout({ data, downloadMutation }: SectionPageLayoutP
         </GridItem>
       </Grid>
 
-      {/* Mobile floating dialog button */}
-      <Box display={{ base: 'block', lg: 'none' }}>
-        {/* TODO */}
+      {/* Mobile floating download button */}
+      <Box
+        display={{ base: 'block', md: 'none' }}
+        position={'fixed'}
+        bottom={'24'}
+        left={'4'}
+        zIndex={'1000'}
+      >
+        <Button
+          onClick={() => setIsDialogOpen(true)}
+          size={'lg'}
+          colorPalette={'primary'}
+        >
+          {'Download'}
+        </Button>
       </Box>
+
+      {/* Mobile dialog */}
+      <DialogRoot open={isDialogOpen} onOpenChange={e => setIsDialogOpen(e.open)} placement={'center'}>
+        <Portal>
+          <DialogBackdrop />
+          <DialogPositioner>
+            <DialogContent bg={'transparent'}>
+              <DialogBody>
+                <SelectedPacks compatibleVersions={data.version} onDownload={downloadMutation} />
+              </DialogBody>
+            </DialogContent>
+          </DialogPositioner>
+        </Portal>
+      </DialogRoot>
     </PackSelectionProvider>
   );
 }

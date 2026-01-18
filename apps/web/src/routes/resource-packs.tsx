@@ -11,9 +11,13 @@ import { JSX } from 'react';
 export const Route = createFileRoute('/resource-packs')({
   component: ResourcePacks,
   loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(resourcePacksQueryOptions),
-  staticData: {
-    title: 'Bedrock Tweaks - Resource Packs',
-  },
+  head: () => ({
+    meta: [
+      {
+        title: 'Bedrock Tweaks - Resource Packs',
+      },
+    ],
+  }),
 });
 
 function ResourcePacks(): JSX.Element {

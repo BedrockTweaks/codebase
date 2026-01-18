@@ -1,4 +1,4 @@
-import { Toaster } from '@/components/toaster';
+import { Toaster } from '@/components/Toaster';
 import { system } from '@/theming';
 import { Box, ChakraProvider, Flex } from '@chakra-ui/react';
 import { TanStackDevtools } from '@tanstack/react-devtools';
