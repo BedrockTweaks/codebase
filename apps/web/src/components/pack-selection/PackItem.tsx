@@ -1,15 +1,14 @@
 import { usePackSelection } from '@/contexts';
 import { Pack, SEVERITY_COLOR_MAP } from '@/models';
+import { API_URL } from '@/utils/api';
 import { Box, Image, Text, VStack } from '@chakra-ui/react';
 import { JSX, useState } from 'react';
 
 function getPackIconUrl(section: string, categoryId: string, packId: string, extension: 'png' | 'gif' = 'png'): string {
-  const apiUrl = import.meta.env.VITE_API_URL || '';
-
   // Convert section format: 'resource-packs' -> 'resource_packs'
   const sectionPath = section.replace(/-/g, '_');
 
-  return `${apiUrl}/static/${sectionPath}/files/${categoryId}/${packId}/pack_icon.${extension}`;
+  return `${API_URL}/static/${sectionPath}/files/${categoryId}/${packId}/pack_icon.${extension}`;
 }
 
 interface PackItemProps {

@@ -45,7 +45,8 @@ jobs:
           VITE_SENTRY_DSN: ${{ vars.VITE_SENTRY_DSN }}
           VITE_SENTRY_ORG: ${{ vars.VITE_SENTRY_ORG }}
           VITE_SENTRY_PROJECT: ${{ vars.VITE_SENTRY_PROJECT }}
-          VITE_API_URL: ${{ vars.VITE_API_URL }}
+          VITE_API_INTERNAL_URL: ${{ vars.VITE_API_INTERNAL_URL }}
+          VITE_API_PUBLIC_URL: ${{ vars.VITE_API_PUBLIC_URL }}
         run: pnpm build --filter=@bt/web
 
       - name: Remove .htaccess for production
@@ -98,7 +99,7 @@ jobs:
             rm -f /tmp/bedrock_tweaks_site.zip
 
             # Restart the application service if applicable
-            # sudo systemctl restart bedrock-tweaks-${{ inputs.environment }} || true
+            sudo systemctl restart bedrock_tweaks_web_${{ inputs.environment }} || true
 
       - name: Output job status
         id: job-status

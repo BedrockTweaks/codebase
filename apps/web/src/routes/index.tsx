@@ -2,6 +2,7 @@ import { useCraftingTweaks } from '@/hooks/api/useCraftingTweaks';
 import { useResourcePacks } from '@/hooks/api/useResourcePacks';
 import { Section, type Category, type Pack } from '@/models';
 import { Link } from '@/theming/components';
+import { API_URL } from '@/utils/api';
 import { Circle, Flex, Grid, GridItem, Heading, Image, SimpleGrid, Stack, Text, VStack } from '@chakra-ui/react';
 import { createFileRoute } from '@tanstack/react-router';
 import { JSX, useMemo } from 'react';
@@ -176,9 +177,7 @@ function getRandomImage(categories: Category[], section: Section): string {
     const randomPackIndex = Math.floor(Math.random() * selectedCategory.packs.length);
     const selectedPack: Pack = selectedCategory.packs[randomPackIndex];
 
-    const apiUrl = import.meta.env.VITE_API_URL || '';
-
-    return `${apiUrl}/static/${section}/files/${selectedCategory.id}/${selectedPack.id}/pack_icon.png`;
+    return `${API_URL}/static/${section}/files/${selectedCategory.id}/${selectedPack.id}/pack_icon.png`;
   }
 
   return '';
