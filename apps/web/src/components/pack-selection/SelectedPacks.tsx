@@ -5,13 +5,11 @@ import { generatePackName } from '@/utils/packs';
 import {
   Box,
   DownloadTrigger,
-  Group,
   Heading,
   Text,
   VStack,
 } from '@chakra-ui/react';
 import { UseMutationResult } from '@tanstack/react-query';
-import { Share } from 'lucide-react';
 import { JSX, useMemo, useState } from 'react';
 import { toaster } from '../Toaster';
 
@@ -59,34 +57,6 @@ export function SelectedPacks({ compatibleVersions, onDownload }: SelectedPacksP
         },
       });
     });
-  };
-
-  const handleShare = async (): Promise<void> => {
-    if (!navigator.share) {
-      toaster.error({
-        title: 'Share Not Supported',
-        description: 'Your browser does not support the share feature.',
-      });
-
-      return;
-    }
-
-    try {
-      const blob = await handleDownloadData();
-      const file = new File([blob], generatedPackName.fileName, { type: 'application/octet-stream' });
-
-      await navigator.share({
-        files: [file],
-        title: generatedPackName.packName,
-      });
-    } catch (error) {
-      if (error instanceof Error && error.name !== 'AbortError') {
-        toaster.error({
-          title: 'Share Failed',
-          description: error.message,
-        });
-      }
-    }
   };
 
   return (
@@ -175,34 +145,21 @@ export function SelectedPacks({ compatibleVersions, onDownload }: SelectedPacksP
             {`Compatible versions: ${compatibleVersions.toString().replace(/,/g, '.')}+`}
           </Text>
 
-          <Group attached>
-            <DownloadTrigger
-              data={handleDownloadData}
-              fileName={generatedPackName.fileName}
-              mimeType={'application/octet-stream'}
-              asChild
-            >
-              <Button
-                variant={'solid'}
-                size={'lg'}
-                width={'full'}
-                disabled={!selectedPacks.length || onDownload.isPending}
-              >
-                {onDownload.isPending ? 'Downloading...' : 'Download'}
-              </Button>
-            </DownloadTrigger>
-
+          <DownloadTrigger
+            data={handleDownloadData}
+            fileName={generatedPackName.fileName}
+            mimeType={'application/octet-stream'}
+            asChild
+          >
             <Button
               variant={'solid'}
               size={'lg'}
-              onClick={handleShare}
+              width={'full'}
               disabled={!selectedPacks.length || onDownload.isPending}
-              display={{ base: 'flex', md: 'none' }}
-              aria-label={'Share pack'}
             >
-              <Share size={20} />
+              {onDownload.isPending ? 'Downloading...' : 'Download'}
             </Button>
-          </Group>
+          </DownloadTrigger>
         </VStack>
       </VStack>
     </Box>

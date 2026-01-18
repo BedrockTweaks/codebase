@@ -97,6 +97,12 @@ jobs:
             unzip -o /tmp/bedrock_tweaks_site.zip -d "$DEPLOY_DIR"
             rm -f /tmp/bedrock_tweaks_site.zip
 
+            # Create runtime .env file for Nitro server
+            cat > "$DEPLOY_DIR/.env" << 'EOF'
+            VITE_API_URL=${{ vars.VITE_API_URL }}
+            VITE_SENTRY_DSN=${{ vars.VITE_SENTRY_DSN }}
+            EOF
+
       - name: Restart the service
         uses: appleboy/ssh-action@master
         with:
