@@ -1,17 +1,18 @@
+import { Toaster } from '@/components/toaster';
+import { system } from '@/theming';
+import { Box, ChakraProvider, Flex } from '@chakra-ui/react';
+import { TanStackDevtools } from '@tanstack/react-devtools';
+import type { QueryClient } from '@tanstack/react-query';
+import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools';
 import {
   HeadContent,
   Scripts,
   createRootRouteWithContext,
 } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
-import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools';
-import { TanStackDevtools } from '@tanstack/react-devtools';
-import type { QueryClient } from '@tanstack/react-query';
 import { JSX } from 'react';
-import { Box, ChakraProvider, Flex } from '@chakra-ui/react';
-import { system } from '@/theming';
-import Header from '../components/Header';
 import Footer from '../components/Footer';
+import Header from '../components/Header';
 import appCss from '../styles.css?url';
 
 interface MyRouterContext {
@@ -133,6 +134,7 @@ function RootDocument({ children }: { children: React.ReactNode }): JSX.Element 
               {children}
             </Box>
             <Footer />
+            <Toaster />
           </Flex>
         </ChakraProvider>
 

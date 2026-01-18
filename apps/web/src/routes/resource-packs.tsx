@@ -1,4 +1,10 @@
-import { resourcePacksQueryOptions } from '@/hooks/api/useResourcePacks';
+import { SectionPageFooter, SectionPageLayout } from '@/components/pack-selection';
+import {
+  resourcePacksQueryOptions,
+  useDownloadResourcePacks,
+  useResourcePacks,
+} from '@/hooks/api/useResourcePacks';
+import { Container, Heading } from '@chakra-ui/react';
 import { createFileRoute } from '@tanstack/react-router';
 import { JSX } from 'react';
 
@@ -11,10 +17,26 @@ export const Route = createFileRoute('/resource-packs')({
 });
 
 function ResourcePacks(): JSX.Element {
+  const { data } = useResourcePacks();
+  const downloadMutation = useDownloadResourcePacks();
+
   return (
-    <div>
-      <h1>{'Resource Packs'}</h1>
-      <p>{'Browse and download resource packs for Minecraft Bedrock Edition.'}</p>
-    </div>
+    <Container py={'28'} px={{ base: '4', md: '8' }}>
+      <Heading
+        as={'h1'}
+        size={'4xl'}
+        fontWeight={'semibold'}
+        textAlign={'center'}
+        mb={8}
+        color={'white'}
+      >
+        {'Resource Packs'}
+      </Heading>
+      <SectionPageLayout
+        data={data}
+        downloadMutation={downloadMutation}
+      />
+      <SectionPageFooter />
+    </Container>
   );
 }

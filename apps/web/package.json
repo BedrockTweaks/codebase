@@ -35,6 +35,7 @@
   },
   "devDependencies": {
     "@bt/config": "workspace:*",
+    "@chakra-ui/cli": "^3.31.0",
     "@tanstack/devtools-vite": "^0.3.11",
     "@tanstack/eslint-plugin-query": "^5.91.2",
     "@testing-library/dom": "^10.4.0",

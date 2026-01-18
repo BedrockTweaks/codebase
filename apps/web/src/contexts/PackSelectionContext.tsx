@@ -1,4 +1,4 @@
-import { Category } from '@/models';
+import { Category, Section } from '@/models';
 import {
   createContext,
   JSX,
@@ -10,6 +10,7 @@ import {
 } from 'react';
 
 export interface PackSelectionContextValue {
+  section: Section;
   selectedPacks: Category[];
   togglePack: (categoryId: string, packId: string) => void;
   isSelected: (categoryId: string, packId: string) => boolean;
@@ -34,11 +35,12 @@ export function usePackSelection(): PackSelectionContextValue {
 }
 
 interface PackSelectionProviderProps {
-  children: ReactNode;
+  section: Section;
   categories: Category[];
+  children: ReactNode;
 }
 
-export function PackSelectionProvider({ children, categories }: PackSelectionProviderProps): JSX.Element {
+export function PackSelectionProvider({ section, categories, children }: PackSelectionProviderProps): JSX.Element {
   // Map<categoryId, Set<packId>>
   const [selection, setSelection] = useState<SelectionState>(
     () => new Map(),
@@ -117,12 +119,13 @@ export function PackSelectionProvider({ children, categories }: PackSelectionPro
 
   const value = useMemo<PackSelectionContextValue>(
     () => ({
+      section,
       selectedPacks,
       togglePack,
       isSelected,
       toggleAll,
     }),
-    [selectedPacks, togglePack, isSelected, toggleAll],
+    [section, selectedPacks, togglePack, isSelected, toggleAll],
   );
 
   return (
