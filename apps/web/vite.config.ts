@@ -11,11 +11,6 @@ const config = defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
 
   return {
-    define: {
-      __API_PUBLIC_URL__: JSON.stringify(process.env.VITE_API_PUBLIC_URL || env.VITE_API_PUBLIC_URL),
-      __API_INTERNAL_URL__: JSON.stringify(process.env.VITE_API_INTERNAL_URL || env.VITE_API_INTERNAL_URL),
-    },
-
     build: {
       sourcemap: true,
     },
