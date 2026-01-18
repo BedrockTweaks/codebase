@@ -3,6 +3,7 @@ import {
   defaultConfig,
   defineConfig,
 } from '@chakra-ui/react';
+import { accordionSlotRecipe } from './components';
 
 const config = defineConfig({
   theme: {
@@ -53,6 +54,9 @@ const config = defineConfig({
         heading: { value: 'Urbanist, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"' },
         mono: { value: '"SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace' },
       },
+    },
+    slotRecipes: {
+      accordion: accordionSlotRecipe,
     },
   },
   globalCss: {

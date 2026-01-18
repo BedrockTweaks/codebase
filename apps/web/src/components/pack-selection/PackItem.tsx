@@ -108,6 +108,7 @@ export function PackItem({ pack, categoryId }: PackItemProps): JSX.Element {
       <Text
         fontSize={'xs'}
         opacity={pack.disabled ? 0.7 : 1}
+        color={'white'}
       >
         {pack.version}
       </Text>

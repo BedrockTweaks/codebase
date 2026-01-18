@@ -2,8 +2,8 @@ import { DownloadRequest, SectionResponse } from '@/models';
 import { Box, Grid, GridItem } from '@chakra-ui/react';
 import { UseMutationResult } from '@tanstack/react-query';
 import { JSX, ReactNode } from 'react';
-import { PackSelectionProvider } from '../../contexts/PackSelectionContext';
-import { NestedAccordion } from './NestedAccordion';
+import { PackSelectionProvider } from '@/contexts/PackSelectionContext';
+import { CategoriesAccordion } from './CategoriesAccordion';
 import { SelectedPacks } from './SelectedPacks';
 
 interface SectionPageLayoutProps {
@@ -22,7 +22,7 @@ export function SectionPageLayout({ data, downloadMutation }: SectionPageLayoutP
         {/* Accordion section */}
         <GridItem>
           <Box>
-            <NestedAccordion categories={data.categories} />
+            <CategoriesAccordion categories={data.categories} />
           </Box>
         </GridItem>
 

@@ -129,8 +129,8 @@ export function PackSelectionProvider({ section, categories, children }: PackSel
   );
 
   return (
-    <PackSelectionContext.Provider value={value}>
+    <PackSelectionContext value={value}>
       {children}
-    </PackSelectionContext.Provider>
+    </PackSelectionContext>
   );
 }

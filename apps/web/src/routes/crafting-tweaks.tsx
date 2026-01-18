@@ -1,4 +1,6 @@
-import { craftingTweaksQueryOptions } from '@/hooks/api/useCraftingTweaks';
+import { SectionPageFooter, SectionPageLayout } from '@/components/pack-selection';
+import { craftingTweaksQueryOptions, useCraftingTweaks, useDownloadCraftingTweaks } from '@/hooks/api/useCraftingTweaks';
+import { Container, Heading } from '@chakra-ui/react';
 import { createFileRoute } from '@tanstack/react-router';
 import { JSX } from 'react';
 
@@ -11,10 +13,26 @@ export const Route = createFileRoute('/crafting-tweaks')({
 });
 
 function CraftingTweaks(): JSX.Element {
+  const { data } = useCraftingTweaks();
+  const downloadMutation = useDownloadCraftingTweaks();
+
   return (
-    <div>
-      <h1>{'Crafting Tweaks'}</h1>
-      <p>{'Discover crafting tweaks and improvements for Bedrock Edition.'}</p>
-    </div>
+    <Container py={'28'} px={{ base: '4', md: '8' }}>
+      <Heading
+        as={'h1'}
+        size={'4xl'}
+        fontWeight={'semibold'}
+        textAlign={'center'}
+        mb={8}
+        color={'white'}
+      >
+        {'Crafting Tweaks'}
+      </Heading>
+      <SectionPageLayout
+        data={data}
+        downloadMutation={downloadMutation}
+      />
+      <SectionPageFooter />
+    </Container>
   );
 }
