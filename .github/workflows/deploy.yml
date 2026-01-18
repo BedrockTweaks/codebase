@@ -46,7 +46,6 @@ jobs:
           VITE_SENTRY_ORG: ${{ vars.VITE_SENTRY_ORG }}
           VITE_SENTRY_PROJECT: ${{ vars.VITE_SENTRY_PROJECT }}
           VITE_API_URL: ${{ vars.VITE_API_URL }}
-          VITE_APP_VERSION: ${{ vars.VITE_APP_VERSION }}
         run: pnpm build --filter=@bt/web
 
       - name: Remove .htaccess for production

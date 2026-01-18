@@ -1,11 +1,12 @@
 import { Link } from '@/theming/components';
+import { useAppVersion } from '@/hooks/api/useAppVersion';
 import { Flex, Text } from '@chakra-ui/react';
 import { FaDiscord } from 'react-icons/fa';
 import { JSX } from 'react';
 
 export default function Footer(): JSX.Element {
   const currentYear = new Date().getFullYear();
-  const version = import.meta.env.VITE_APP_VERSION;
+  const { version } = useAppVersion();
 
   return (
     <Flex
@@ -28,8 +29,12 @@ export default function Footer(): JSX.Element {
             {'© Bedrock Tweaks '}
             {currentYear}
           </Text>
-          <Text>{'|'}</Text>
-          <Text>{`v${version}`}</Text>
+          {version && (
+            <>
+              <Text>{'|'}</Text>
+              <Text>{`v${version}`}</Text>
+            </>
+          )}
         </Flex>
 
         <Text mx={'2'} hideBelow={'md'}>

@@ -1,6 +1,7 @@
 import type { DownloadRequest, SectionResponse } from '@/models';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
+const GITHUB_REPO = 'BedrockTweaks/Files';
 
 /**
  * Fetch section data (resource-packs, addons, or crafting-tweaks)
@@ -45,4 +46,28 @@ export async function downloadPacks(section: string, data: DownloadRequest): Pro
   }
 
   return response.blob();
+}
+
+interface GitHubRelease {
+  tag_name: string;
+  name: string;
+  published_at: string;
+}
+
+/**
+ * Fetch the latest version from GitHub releases
+ */
+export async function fetchLatestVersion(): Promise<string> {
+  const response = await fetch(
+    `https://api.github.com/repos/${GITHUB_REPO}/releases/latest`,
+  );
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch version');
+  }
+
+  const data: GitHubRelease = await response.json();
+
+  // Remove 'v' prefix if present
+  return data.tag_name.replace(/^v/, '');
 }
