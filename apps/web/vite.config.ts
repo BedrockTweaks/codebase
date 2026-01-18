@@ -12,8 +12,8 @@ const config = defineConfig(({ mode }) => {
 
   return {
     define: {
-      __API_PUBLIC_URL__: JSON.stringify(env.VITE_API_PUBLIC_URL),
-      __API_INTERNAL_URL__: JSON.stringify(env.VITE_API_INTERNAL_URL),
+      __API_PUBLIC_URL__: JSON.stringify(process.env.VITE_API_PUBLIC_URL),
+      __API_INTERNAL_URL__: JSON.stringify(process.env.VITE_API_INTERNAL_URL),
     },
 
     build: {
