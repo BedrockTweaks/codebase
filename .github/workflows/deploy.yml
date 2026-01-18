@@ -99,7 +99,7 @@ jobs:
             rm -f /tmp/bedrock_tweaks_site.zip
 
             # Restart the application service if applicable
-            sudo systemctl restart bedrock_tweaks_web_${{ inputs.environment }} || true
+            systemctl restart bedrock_tweaks_web_${{ inputs.environment }} || true
 
       - name: Output job status
         id: job-status
