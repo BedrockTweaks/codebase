@@ -1,0 +1,107 @@
+name: Build and Deploy Site
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to deploy to"
+        required: true
+        type: choice
+        options:
+          - dev
+          - prod
+
+env:
+  NODE_VERSION: "20"
+
+jobs:
+  build-and-deploy:
+    name: Build and Deploy (${{ inputs.environment }})
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build application
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          VITE_SENTRY_DSN: ${{ vars.VITE_SENTRY_DSN }}
+          VITE_SENTRY_ORG: ${{ vars.VITE_SENTRY_ORG }}
+          VITE_SENTRY_PROJECT: ${{ vars.VITE_SENTRY_PROJECT }}
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
+          VITE_APP_VERSION: ${{ vars.VITE_APP_VERSION }}
+        run: pnpm build --filter=@bt/web
+
+      - name: Remove .htaccess for production
+        if: ${{ inputs.environment == 'prod' }}
+        run: rm -f apps/web/.output/public/.htaccess
+
+      - name: Zip build artifact
+        working-directory: apps/web/.output
+        run: zip -r ../../../bedrock_tweaks_site.zip .
+
+      - name: Set deploy directory
+        id: deploy-config
+        run: |
+          if [ "${{ inputs.environment }}" = "prod" ]; then
+            echo "deploy_dir=/var/www/bedrock_tweaks" >> $GITHUB_OUTPUT
+          else
+            echo "deploy_dir=/var/www/bedrock_tweaks_dev" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload artifact to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_ADDRESS }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: 22
+          source: "bedrock_tweaks_site.zip"
+          target: "/tmp"
+
+      - name: Deploy on server
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.SERVER_ADDRESS }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: 22
+          script: |
+            set -euo pipefail
+            DEPLOY_DIR="${{ steps.deploy-config.outputs.deploy_dir }}"
+
+            # Safety guard: ensure DEPLOY_DIR is not empty and is under /var/www
+            if [ -z "$DEPLOY_DIR" ] || [ "${DEPLOY_DIR#/var/www}" = "$DEPLOY_DIR" ]; then
+              echo "Refusing to deploy to unsafe directory: '$DEPLOY_DIR'" >&2
+              exit 1
+            fi
+
+            mkdir -p "$DEPLOY_DIR"
+            rm -rf "$DEPLOY_DIR"/*
+            unzip -o /tmp/bedrock_tweaks_site.zip -d "$DEPLOY_DIR"
+            rm -f /tmp/bedrock_tweaks_site.zip
+
+            # Restart the application service if applicable
+            # sudo systemctl restart bedrock-tweaks-${{ inputs.environment }} || true
+
+      - name: Output job status
+        id: job-status
+        if: always()
+        run: echo "status=${{ job.status }}" >> $GITHUB_OUTPUT

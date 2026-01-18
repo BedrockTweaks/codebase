@@ -1,6 +1,7 @@
 {
   "$schema": "https://turborepo.dev/schema.json",
   "ui": "tui",
+  "globalEnv": ["SENTRY_AUTH_TOKEN", "VITE_SENTRY_ORG", "VITE_SENTRY_PROJECT"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
