@@ -39,21 +39,24 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Create build .env file
+        uses: SpicyPizza/create-envfile@v2
+        with:
+          envkey_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          envkey_API_URL: ${{ secrets.API_URL }}
+          envkey_VITE_SENTRY_DSN: ${{ vars.VITE_SENTRY_DSN }}
+          envkey_VITE_SENTRY_ORG: ${{ vars.VITE_SENTRY_ORG }}
+          envkey_VITE_SENTRY_PROJECT: ${{ vars.VITE_SENTRY_PROJECT }}
+          envkey_VITE_API_URL: ${{ vars.VITE_API_URL }}
+          file_name: ".env"
+          fail_on_empty: false
+          sort_keys: false
+
       - name: Build application
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          API_URL: ${{ secrets.API_URL }}
-          VITE_SENTRY_DSN: ${{ vars.VITE_SENTRY_DSN }}
-          VITE_SENTRY_ORG: ${{ vars.VITE_SENTRY_ORG }}
-          VITE_SENTRY_PROJECT: ${{ vars.VITE_SENTRY_PROJECT }}
-          VITE_API_URL: ${{ vars.VITE_API_URL }}
         run: pnpm build --filter=@bt/web
 
-      - name: Remove .htaccess for production
-        if: ${{ inputs.environment == 'prod' }}
-        run: rm -f apps/web/.output/public/.htaccess
-
-      - name: Create .env file for server
+        
+      - name: Create server .env file
         uses: SpicyPizza/create-envfile@v2
         with:
           envkey_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
@@ -62,6 +65,10 @@ jobs:
           file_name: ".env"
           fail_on_empty: false
           sort_keys: false
+
+      - name: Remove .htaccess for production
+        if: ${{ inputs.environment == 'prod' }}
+        run: rm -f apps/web/.output/public/.htaccess
 
       - name: Zip build artifact
         working-directory: apps/web/.output
