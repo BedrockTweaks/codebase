@@ -1,9 +1,13 @@
 import type { DownloadRequest, SectionResponse } from '@/models';
 
 export function getApiUrl(): string {
-  return typeof window !== 'undefined'
-    ? import.meta.env.VITE_API_URL
-    : process.env.VITE_API_URL || '';
+  if (typeof window === 'undefined') {
+    // Server / SSR
+    return process.env.API_URL!;
+  }
+
+  // Browser
+  return import.meta.env.VITE_API_URL!;
 }
 
 const GITHUB_REPO = 'BedrockTweaks/Files';

@@ -42,6 +42,7 @@ jobs:
       - name: Build application
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          API_URL: ${{ secrets.API_URL }}
           VITE_SENTRY_DSN: ${{ vars.VITE_SENTRY_DSN }}
           VITE_SENTRY_ORG: ${{ vars.VITE_SENTRY_ORG }}
           VITE_SENTRY_PROJECT: ${{ vars.VITE_SENTRY_PROJECT }}
