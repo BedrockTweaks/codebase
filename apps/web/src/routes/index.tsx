@@ -54,7 +54,6 @@ function Landing(): JSX.Element {
         <Flex justify={'center'} align={'start'} p={'4'} position={'sticky'} top={'20'}>
           <AdSense
             slot={ADSENSE_CONFIG.slots.homepageLeftSidebar}
-            format={'vertical'}
             responsive={true}
           />
         </Flex>
@@ -179,7 +178,6 @@ function Landing(): JSX.Element {
           {/* Bottom Ad - Visible on all devices */}
           <AdSense
             slot={ADSENSE_CONFIG.slots.homepageBottom}
-            format={'auto'}
             responsive={true}
           />
         </VStack>
@@ -190,7 +188,6 @@ function Landing(): JSX.Element {
         <Flex justify={'center'} align={'start'} p={'4'} position={'sticky'} top={'20'}>
           <AdSense
             slot={ADSENSE_CONFIG.slots.homepageRightSidebar}
-            format={'vertical'}
             responsive={true}
           />
         </Flex>

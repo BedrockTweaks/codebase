@@ -62,7 +62,6 @@ function Addons(): JSX.Element {
 
         <AdSense
           slot={ADSENSE_CONFIG.slots.addonsBottom}
-          format={'auto'}
           responsive={true}
           style={{ display: 'block', marginTop: '4rem' }}
         />

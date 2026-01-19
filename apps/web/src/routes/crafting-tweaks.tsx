@@ -36,7 +36,6 @@ function CraftingTweaks(): JSX.Element {
       </Heading>
       <AdSense
         slot={ADSENSE_CONFIG.slots.craftingTweaksTop}
-        format={'auto'}
         responsive={true}
         style={{ display: 'block', marginBottom: '2rem' }}
       />
@@ -46,7 +45,6 @@ function CraftingTweaks(): JSX.Element {
       />
       <AdSense
         slot={ADSENSE_CONFIG.slots.craftingTweaksBottom}
-        format={'auto'}
         responsive={true}
         style={{ display: 'block', marginTop: '2rem' }}
       />

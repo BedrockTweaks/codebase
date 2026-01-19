@@ -40,7 +40,6 @@ function ResourcePacks(): JSX.Element {
       </Heading>
       <AdSense
         slot={ADSENSE_CONFIG.slots.resourcePacksTop}
-        format={'auto'}
         responsive={true}
         style={{ display: 'block', marginBottom: '2rem' }}
       />
@@ -50,7 +49,6 @@ function ResourcePacks(): JSX.Element {
       />
       <AdSense
         slot={ADSENSE_CONFIG.slots.resourcePacksBottom}
-        format={'auto'}
         responsive={true}
         style={{ display: 'block', marginTop: '2rem' }}
       />

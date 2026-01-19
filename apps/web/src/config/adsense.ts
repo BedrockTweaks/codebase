@@ -6,14 +6,14 @@
 export const ADSENSE_CONFIG = {
   clientId: 'ca-pub-7645850220804105',
   slots: {
-    homepageLeftSidebar: '1234567890',
-    homepageRightSidebar: '0987654321',
-    homepageBottom: '1111111111',
-    resourcePacksTop: '2222222222',
-    resourcePacksBottom: '2222222223',
-    addonsTop: '3333333332',
-    addonsBottom: '3333333333',
-    craftingTweaksTop: '3333333334',
-    craftingTweaksBottom: '3333333335',
+    homepageLeftSidebar: '3139638302',
+    homepageRightSidebar: '8521146860',
+    homepageBottom: '6713241179',
+    resourcePacksTop: '2773996165',
+    resourcePacksBottom: '4685843635',
+    addonsTop: '1764166824',
+    addonsBottom: '9245688135',
+    craftingTweaksTop: '5574229951',
+    craftingTweaksBottom: '2948066610',
   },
 } as const;

@@ -4,7 +4,7 @@ import { useAdSense } from '../hooks/useAdSense';
 
 interface AdSenseProps {
   slot: string;
-  format?: 'auto' | 'fluid' | 'rectangle' | 'vertical' | 'horizontal';
+  format?: 'auto' | undefined;
   responsive?: boolean;
   style?: React.CSSProperties;
 }
