@@ -1,3 +1,5 @@
+import { AdSense } from '@bt/adsense';
+import { ADSENSE_CONFIG } from '@/config/adsense';
 import { useCraftingTweaks } from '@/hooks/api/useCraftingTweaks';
 import { useResourcePacks } from '@/hooks/api/useResourcePacks';
 import { Section, type Category, type Pack } from '@/models';
@@ -49,14 +51,18 @@ function Landing(): JSX.Element {
     <Grid templateColumns={{ base: '1fr', md: '1fr 2fr 1fr' }} gap={'0'} pt={'20'} pb={'auto'}>
       {/* Left Ad Column - Hidden on mobile */}
       <GridItem hideBelow={'md'}>
-        <Flex justify={'center'} align={'start'} p={'4'}>
-          {/* Ad space */}
+        <Flex justify={'center'} align={'start'} p={'4'} position={'sticky'} top={'20'}>
+          <AdSense
+            slot={ADSENSE_CONFIG.slots.homepageLeftSidebar}
+            format={'vertical'}
+            responsive={true}
+          />
         </Flex>
       </GridItem>
 
       {/* Main Content */}
       <GridItem>
-        <VStack gap={'8'} py={'10'} px={'4'}>
+        <VStack gap={'8'} px={'4'}>
           {/* Logo */}
           <Image src={'/assets/images/logo-white.svg'} alt={'Bedrock Tweaks'} maxW={'full'} my={'5'} />
 
@@ -169,13 +175,24 @@ function Landing(): JSX.Element {
               </a>
             </Link>
           </Stack>
+
+          {/* Bottom Ad - Visible on all devices */}
+          <AdSense
+            slot={ADSENSE_CONFIG.slots.homepageBottom}
+            format={'auto'}
+            responsive={true}
+          />
         </VStack>
       </GridItem>
 
       {/* Right Ad Column - Hidden on mobile */}
       <GridItem hideBelow={'md'}>
-        <Flex justify={'center'} align={'start'} p={'4'}>
-          {/* Ad space */}
+        <Flex justify={'center'} align={'start'} p={'4'} position={'sticky'} top={'20'}>
+          <AdSense
+            slot={ADSENSE_CONFIG.slots.homepageRightSidebar}
+            format={'vertical'}
+            responsive={true}
+          />
         </Flex>
       </GridItem>
     </Grid>

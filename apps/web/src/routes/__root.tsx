@@ -1,4 +1,6 @@
+import { AdSenseAutoAds, AdSenseProvider } from '@bt/adsense';
 import { Toaster } from '@/components/Toaster';
+import { ADSENSE_CONFIG } from '@/config/adsense';
 import { system } from '@/theming';
 import { Box, ChakraProvider, Flex } from '@chakra-ui/react';
 import { TanStackDevtools } from '@tanstack/react-devtools';
@@ -44,6 +46,46 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         name: 'keywords',
         content: 'vanilla,tweaks,vanillatweaks,vanilla tweaks,minecraft,texture pack,resource,pack,resourcepack,bedrock,bedrock vanilla tweaks,mcpe vanilla tweaks,vanilla tweaks mcpe,vanilla tweaks bedrock,vanilla tweaks mobile,bedrock tweaks,mcpe tweaks,minecraft pocket edition,mcpe,vanilla tweaks pocket edition,bedrocktweaks,mcpetweaks,vanillatweaksmcpe,minecraft bedrock,minecraft bedrock edition,vanilla tweaks minecraft,vanilla tweaks datapack,vanilla tweaks texture pack,vanilla tweaks resource pack,minecraft bedrock texture pack,mcpe texture pack,minecraft bedrock resource pack',
       },
+      {
+        property: 'og:title',
+        content: 'Bedrock Tweaks',
+      },
+      {
+        property: 'og:description',
+        content: 'We tweak parts of vanilla Minecraft Bedrock that we believe can be a little better through resource packs, addons, and crafting tweaks. Ported Vanilla Tweaks to Minecraft Bedrock.',
+      },
+      {
+        property: 'og:image',
+        content: '/assets/images/banner.png',
+      },
+      {
+        property: 'og:url',
+        content: 'https://bedrocktweaks.net',
+      },
+      {
+        property: 'og:type',
+        content: 'website',
+      },
+      {
+        name: 'twitter:card',
+        content: 'summary_large_image',
+      },
+      {
+        name: 'twitter:title',
+        content: 'Bedrock Tweaks',
+      },
+      {
+        name: 'twitter:description',
+        content: 'We tweak parts of vanilla Minecraft Bedrock that we believe can be a little better through resource packs, addons, and crafting tweaks. Ported Vanilla Tweaks to Minecraft Bedrock.',
+      },
+      {
+        name: 'twitter:url',
+        content: 'https://bedrocktweaks.net',
+      },
+      {
+        name: 'twitter:image',
+        content: '/assets/images/banner.png',
+      },
     ],
     links: [
       {
@@ -57,47 +99,6 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       },
     ],
     scripts: [
-      {
-        src: 'https://www.googletagmanager.com/gtag/js?id=G-PS7REQ4ES8',
-        async: true,
-      },
-      {
-        children: `
-          window.dataLayer = window.dataLayer || [];
-          function gtag() {
-            dataLayer.push(arguments);
-          }
-          gtag('js', new Date());
-          gtag('config', 'G-PS7REQ4ES8');
-        `,
-      },
-      {
-        children: `
-          window.googletag = window.googletag || { cmd: [] };
-          window.reloadGoogleAds = reloadGoogleAds;
-          function reloadGoogleAds() {
-            googletag.cmd.push(() => {
-              googletag.pubads().refresh();
-            });
-          }
-        `,
-      },
-      {
-        children: `
-          (function(w, d, s, l, i) {
-            w[l] = w[l] || [];
-            w[l].push({
-              'gtm.start': new Date().getTime(),
-              event: 'gtm.js'
-            });
-            var f = d.getElementsByTagName(s)[0],
-              j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
-            j.async = true;
-            j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
-            f.parentNode.insertBefore(j, f);
-          })(window, document, 'script', 'dataLayer', 'GTM-MZRBPKVL');
-        `,
-      },
     ],
   }),
 
@@ -121,21 +122,24 @@ function RootDocument({ children }: { children: React.ReactNode }): JSX.Element 
         </noscript>
 
         <ChakraProvider value={system}>
-          <Flex
-            direction={'column'}
-            minH={'100vh'}
-            bgImage={'url(/assets/images/background.png)'}
-            bgSize={'cover'}
-            bgPos={'center'}
-            bgAttachment={'fixed'}
-          >
-            <Header />
-            <Box flex={1}>
-              {children}
-            </Box>
-            <Footer />
-            <Toaster />
-          </Flex>
+          <AdSenseProvider clientId={ADSENSE_CONFIG.clientId}>
+            <AdSenseAutoAds />
+            <Flex
+              direction={'column'}
+              minH={'100vh'}
+              bgImage={'url(/assets/images/background.png)'}
+              bgSize={'cover'}
+              bgPos={'center'}
+              bgAttachment={'fixed'}
+            >
+              <Header />
+              <Box flex={1}>
+                {children}
+              </Box>
+              <Footer />
+              <Toaster />
+            </Flex>
+          </AdSenseProvider>
         </ChakraProvider>
 
         <TanStackDevtools

@@ -1,4 +1,6 @@
+import { AdSense } from '@bt/adsense';
 import { SectionPageFooter, SectionPageLayout } from '@/components/pack-selection';
+import { ADSENSE_CONFIG } from '@/config/adsense';
 import { craftingTweaksQueryOptions, useCraftingTweaks, useDownloadCraftingTweaks } from '@/hooks/api/useCraftingTweaks';
 import { Container, Heading } from '@chakra-ui/react';
 import { createFileRoute } from '@tanstack/react-router';
@@ -32,9 +34,21 @@ function CraftingTweaks(): JSX.Element {
       >
         {'Crafting Tweaks'}
       </Heading>
+      <AdSense
+        slot={ADSENSE_CONFIG.slots.craftingTweaksTop}
+        format={'auto'}
+        responsive={true}
+        style={{ display: 'block', marginBottom: '2rem' }}
+      />
       <SectionPageLayout
         data={data}
         downloadMutation={downloadMutation}
+      />
+      <AdSense
+        slot={ADSENSE_CONFIG.slots.craftingTweaksBottom}
+        format={'auto'}
+        responsive={true}
+        style={{ display: 'block', marginTop: '2rem' }}
       />
       <SectionPageFooter />
     </Container>

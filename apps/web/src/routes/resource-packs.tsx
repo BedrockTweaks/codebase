@@ -1,4 +1,6 @@
+import { AdSense } from '@bt/adsense';
 import { SectionPageFooter, SectionPageLayout } from '@/components/pack-selection';
+import { ADSENSE_CONFIG } from '@/config/adsense';
 import {
   resourcePacksQueryOptions,
   useDownloadResourcePacks,
@@ -36,9 +38,21 @@ function ResourcePacks(): JSX.Element {
       >
         {'Resource Packs'}
       </Heading>
+      <AdSense
+        slot={ADSENSE_CONFIG.slots.resourcePacksTop}
+        format={'auto'}
+        responsive={true}
+        style={{ display: 'block', marginBottom: '2rem' }}
+      />
       <SectionPageLayout
         data={data}
         downloadMutation={downloadMutation}
+      />
+      <AdSense
+        slot={ADSENSE_CONFIG.slots.resourcePacksBottom}
+        format={'auto'}
+        responsive={true}
+        style={{ display: 'block', marginTop: '2rem' }}
       />
       <SectionPageFooter />
     </Container>
