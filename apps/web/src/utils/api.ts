@@ -1,7 +1,7 @@
 import type { DownloadRequest, SectionResponse } from '@/models';
 
 // Support both client-side (import.meta.env) and server-side (process.env) runtime
-export const API_URL = import.meta.env.SSR ? import.meta.env.VITE_API_URL : process.env.VITE_API_URL;
+export const API_URL = !import.meta.env.SSR ? import.meta.env.VITE_API_URL : process.env.VITE_API_URL;
 const GITHUB_REPO = 'BedrockTweaks/Files';
 
 /**
