@@ -53,6 +53,16 @@ jobs:
         if: ${{ inputs.environment == 'prod' }}
         run: rm -f apps/web/.output/public/.htaccess
 
+      - name: Create .env file for server
+        uses: SpicyPizza/create-envfile@v2
+        with:
+          envkey_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          envkey_API_URL: ${{ secrets.API_URL }}
+          directory: "apps/web/.output/server"
+          file_name: ".env"
+          fail_on_empty: false
+          sort_keys: false
+
       - name: Zip build artifact
         working-directory: apps/web/.output
         run: zip -r ../../../bedrock_tweaks_site.zip .
