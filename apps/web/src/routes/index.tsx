@@ -5,7 +5,7 @@ import { Link } from '@/theming/components';
 import { getApiUrl } from '@/utils/api';
 import { Circle, Flex, Grid, GridItem, Heading, Image, SimpleGrid, Stack, Text, VStack } from '@chakra-ui/react';
 import { createFileRoute } from '@tanstack/react-router';
-import { JSX, useMemo } from 'react';
+import { JSX, useEffect, useState } from 'react';
 import { FaDiscord, FaGithub } from 'react-icons/fa';
 
 export const Route = createFileRoute('/')({
@@ -24,9 +24,26 @@ function Landing(): JSX.Element {
   // const { data: addonsData } = useAddons();
   const { data: ctData } = useCraftingTweaks();
 
-  const rpImage = useMemo(() => getRandomImage(rpData?.categories ?? [], Section.ResourcePacks), [rpData]);
-  // const addonsImage = useMemo(() => getRandomImage(addonsData?.categories ?? [], Section.Addons), [addonsData]);
-  const ctImage = useMemo(() => getRandomImage(ctData?.categories ?? [], Section.CraftingTweaks), [ctData]);
+  const [rpImage, setRpImage] = useState<string>('');
+  const [ctImage, setCtImage] = useState<string>('');
+
+  useEffect(() => {
+    if (!rpData && !ctData) {
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      if (rpData) {
+        setRpImage(getRandomImage(rpData.categories, Section.ResourcePacks));
+      }
+
+      if (ctData) {
+        setCtImage(getRandomImage(ctData.categories, Section.CraftingTweaks));
+      }
+    }, 0);
+
+    return (): void => clearTimeout(timeout);
+  }, [rpData, ctData]);
 
   return (
     <Grid templateColumns={{ base: '1fr', md: '1fr 2fr 1fr' }} gap={'0'} pt={'20'} pb={'auto'}>
