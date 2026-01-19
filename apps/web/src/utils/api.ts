@@ -1,7 +1,11 @@
 import type { DownloadRequest, SectionResponse } from '@/models';
 
-// Support both client-side (import.meta.env) and server-side (process.env) runtime
-export const API_URL = !import.meta.env.SSR ? import.meta.env.VITE_API_URL : process.env.VITE_API_URL;
+export function getApiUrl(): string {
+  return typeof window !== 'undefined'
+    ? import.meta.env.VITE_API_URL
+    : process.env.VITE_API_URL || '';
+}
+
 const GITHUB_REPO = 'BedrockTweaks/Files';
 
 /**
@@ -9,8 +13,8 @@ const GITHUB_REPO = 'BedrockTweaks/Files';
  * @param section - The section endpoint name
  */
 export async function fetchSectionData(section: string): Promise<SectionResponse> {
-  console.log({ API_URL, meta_URL: import.meta.env.VITE_API_URL, process_URL: process.env.VITE_API_URL });
-  const response = await fetch(`${API_URL}/api/${section}`);
+  console.log({ API_URL: getApiUrl(), meta_URL: import.meta.env.VITE_API_URL, process_URL: process.env.VITE_API_URL });
+  const response = await fetch(`${getApiUrl()}/api/${section}`);
 
   if (!response.ok) {
     throw new Error(`Failed to fetch ${section}: ${response.statusText}`);
@@ -25,7 +29,7 @@ export async function fetchSectionData(section: string): Promise<SectionResponse
  * @param data - Download request with selected categories and packs
  */
 export async function downloadPacks(section: string, data: DownloadRequest): Promise<Blob> {
-  const response = await fetch(`${API_URL}/api/${section}`, {
+  const response = await fetch(`${getApiUrl()}/api/${section}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
