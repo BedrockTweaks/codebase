@@ -9,6 +9,7 @@ const GITHUB_REPO = 'BedrockTweaks/Files';
  * @param section - The section endpoint name
  */
 export async function fetchSectionData(section: string): Promise<SectionResponse> {
+  console.log({ API_URL, meta_URL: import.meta.env.VITE_API_URL, process_URL: process.env.VITE_API_URL });
   const response = await fetch(`${API_URL}/api/${section}`);
 
   if (!response.ok) {
