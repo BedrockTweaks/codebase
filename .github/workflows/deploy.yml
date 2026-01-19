@@ -48,6 +48,7 @@ jobs:
           envkey_VITE_SENTRY_ORG: ${{ vars.VITE_SENTRY_ORG }}
           envkey_VITE_SENTRY_PROJECT: ${{ vars.VITE_SENTRY_PROJECT }}
           envkey_VITE_API_URL: ${{ vars.VITE_API_URL }}
+          directory: "apps/web/"
           file_name: ".env"
           fail_on_empty: false
           sort_keys: false
