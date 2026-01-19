@@ -98,7 +98,7 @@ jobs:
             rm -f /tmp/bedrock_tweaks_site.zip
 
             # Create runtime .env file for Nitro server
-            cat > "$DEPLOY_DIR/.env" << 'EOF'
+            cat > "$DEPLOY_DIR/server/.env" << 'EOF'
             VITE_API_URL=${{ vars.VITE_API_URL }}
             VITE_SENTRY_DSN=${{ vars.VITE_SENTRY_DSN }}
             EOF
@@ -109,7 +109,7 @@ jobs:
           host: ${{ secrets.SERVER_ADDRESS }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          script: systemctl restart bedrock_tweaks_web_${{ inputs.environment }}
+          script: sudo systemctl restart bedrock_tweaks_web_${{ inputs.environment }}
 
 
       - name: Output job status
