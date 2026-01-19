@@ -28,6 +28,15 @@ export function NotFoundPage(): JSX.Element {
                 {'404'}
               </Text>
 
+              <Text color={'white'}>
+                {'VITE_API_URL:'}
+                {import.meta.env.VITE_API_URL ?? 'VITE_API_URL does not exist'}
+              </Text>
+              <Text color={'white'}>
+                {'API_URL:'}
+                {process.env.API_URL ?? 'API_URL does not exist'}
+              </Text>
+
               <Heading as={'h1'} fontSize={{ base: '2xl', lg: '3xl' }} fontWeight={'bold'} color={'white'} textAlign={'center'}>
                 {'Page Not Found'}
               </Heading>
