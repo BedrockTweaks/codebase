@@ -183,7 +183,7 @@ export function SelectedPacks({ compatibleVersions, onDownload, onClose }: Selec
         display={'block'}
         width={'full'}
       >
-        <a href={'https://bisecthosting.com/drav_dev'}>
+        <a href={`https://bisecthosting.com/drav_dev?r=${generatedPackName.prefix}`}>
           <Image
             as={'img'}
             src={'https://www.bisecthosting.com/partners/custom-banners/36ed4925-a513-4942-a5d0-cfbf68400d8a.webp'}

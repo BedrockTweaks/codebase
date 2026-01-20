@@ -1,6 +1,7 @@
 import { Section } from '@/models';
 
 interface GeneratedPackName {
+  prefix: string;
   fileName: string;
   packName: string;
   isValid: boolean;
@@ -36,6 +37,7 @@ export function generatePackName(section: Section, inputName: string | undefined
   const fileName = `${packName}.${extension}`;
 
   return {
+    prefix,
     fileName,
     packName,
     isValid,
