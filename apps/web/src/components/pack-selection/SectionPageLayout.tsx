@@ -69,7 +69,11 @@ export function SectionPageLayout({ data, downloadMutation }: SectionPageLayoutP
           <DialogPositioner>
             <DialogContent bg={'transparent'}>
               <DialogBody>
-                <SelectedPacks compatibleVersions={data.version} onDownload={downloadMutation} />
+                <SelectedPacks
+                  compatibleVersions={data.version}
+                  onDownload={downloadMutation}
+                  onClose={() => setIsDialogOpen(false)}
+                />
               </DialogBody>
             </DialogContent>
           </DialogPositioner>

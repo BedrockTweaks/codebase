@@ -1,11 +1,14 @@
 import { usePackSelection } from '@/contexts/PackSelectionContext';
 import { CategorySelection, DownloadRequest, SECTION_NAME_MAP } from '@/models';
-import { Button, Input } from '@/theming/components';
+import { Button, Input, Link } from '@/theming/components';
 import { generatePackName } from '@/utils/packs';
 import {
   Box,
+  CloseButton,
   DownloadTrigger,
+  Flex,
   Heading,
+  Image,
   Text,
   VStack,
 } from '@chakra-ui/react';
@@ -16,9 +19,10 @@ import { toaster } from '../Toaster';
 interface SelectedPacksProps {
   compatibleVersions: number[];
   onDownload: UseMutationResult<Blob, Error, DownloadRequest>;
+  onClose?: () => void;
 }
 
-export function SelectedPacks({ compatibleVersions, onDownload }: SelectedPacksProps): JSX.Element {
+export function SelectedPacks({ compatibleVersions, onDownload, onClose }: SelectedPacksProps): JSX.Element {
   const [packName, setPackName] = useState<string | undefined>();
 
   const { section, selectedPacks } = usePackSelection();
@@ -69,16 +73,25 @@ export function SelectedPacks({ compatibleVersions, onDownload }: SelectedPacksP
     >
       <VStack align={'stretch'} gap={0}>
         {/* Header */}
-        <Box
+        <Flex
           bg={'primary.500'}
           px={5}
           py={3}
           borderTopRadius={'xl'}
+          align={'center'}
+          justify={'space-between'}
         >
           <Heading size={'lg'} color={'white'}>
             {`${SECTION_NAME_MAP[section]} Selector`}
           </Heading>
-        </Box>
+          {onClose && (
+            <CloseButton
+              onClick={onClose}
+              color={'white'}
+              size={'md'}
+            />
+          )}
+        </Flex>
 
         {/* Scrollable list */}
         <Box
@@ -162,6 +175,24 @@ export function SelectedPacks({ compatibleVersions, onDownload }: SelectedPacksP
           </DownloadTrigger>
         </VStack>
       </VStack>
+
+      <Link
+        asChild
+        target={'_blank'}
+        rel={'noopener noreferrer'}
+        display={'block'}
+        width={'full'}
+      >
+        <a href={'https://bisecthosting.com/drav_dev'}>
+          <Image
+            as={'img'}
+            src={'https://www.bisecthosting.com/partners/custom-banners/36ed4925-a513-4942-a5d0-cfbf68400d8a.webp'}
+            alt={'BisectHosting'}
+            width={'full'}
+            borderRadius={'md'}
+          />
+        </a>
+      </Link>
     </Box>
   );
 }
