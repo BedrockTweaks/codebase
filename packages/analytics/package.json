@@ -1,0 +1,24 @@
+{
+  "name": "@bt/analytics",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "lint": "eslint ."
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "@bt/config": "workspace:*",
+    "eslint": "^9.39.2",
+    "@types/react": "^19.0.13",
+    "typescript": "^5.9.3"
+  }
+}

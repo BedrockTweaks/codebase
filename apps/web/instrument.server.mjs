@@ -10,8 +10,5 @@ if (!sentryDsn) {
 } else {
   Sentry.init({
     dsn: sentryDsn,
-    tracesSampleRate: 1.0,
-    // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
-    tracePropagationTargets: [/^https:\/\/bedrocktweaks\.net\/api/],
   })
 }

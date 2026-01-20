@@ -20,6 +20,9 @@ importers:
       '@bt/adsense':
         specifier: workspace:*
         version: link:../../packages/adsense
+      '@bt/analytics':
+        specifier: workspace:*
+        version: link:../../packages/analytics
       '@chakra-ui/react':
         specifier: ^3.31.0
         version: 3.31.0(@emotion/react@11.14.0(@types/react@19.2.8)(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -147,6 +150,25 @@ importers:
       react:
         specifier: ^19.0.0
         version: 19.2.0
+    devDependencies:
+      '@bt/config':
+        specifier: workspace:*
+        version: link:../config
+      '@types/react':
+        specifier: ^19.0.13
+        version: 19.2.8
+      eslint:
+        specifier: ^9.39.2
+        version: 9.39.2(jiti@2.6.1)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
+  packages/analytics:
+    dependencies:
+      react:
+        specifier: ^19.0.0
+        version: 19.2.3
     devDependencies:
       '@bt/config':
         specifier: workspace:*

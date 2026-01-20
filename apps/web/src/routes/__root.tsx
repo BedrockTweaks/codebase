@@ -1,6 +1,8 @@
 import { AdSenseAutoAds, AdSenseProvider } from '@bt/adsense';
+import { GoogleAnalytics, GoogleAnalyticsProvider } from '@bt/analytics';
 import { Toaster } from '@/components/Toaster';
 import { ADSENSE_CONFIG } from '@/config/adsense';
+import { ANALYTICS_CONFIG } from '@/config/analytics';
 import { system } from '@/theming';
 import { Box, ChakraProvider, Flex } from '@chakra-ui/react';
 import { TanStackDevtools } from '@tanstack/react-devtools';
@@ -98,8 +100,6 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         href: appCss,
       },
     ],
-    scripts: [
-    ],
   }),
 
   shellComponent: RootDocument,
@@ -112,34 +112,28 @@ function RootDocument({ children }: { children: React.ReactNode }): JSX.Element 
         <HeadContent />
       </head>
       <body>
-        <noscript>
-          <iframe
-            src={'https://www.googletagmanager.com/ns.html?id=GTM-MZRBPKVL'}
-            height={'0'}
-            width={'0'}
-            style={{ display: 'none', visibility: 'hidden' }}
-          />
-        </noscript>
-
         <ChakraProvider value={system}>
-          <AdSenseProvider clientId={ADSENSE_CONFIG.clientId}>
-            <AdSenseAutoAds />
-            <Flex
-              direction={'column'}
-              minH={'100vh'}
-              bgImage={'url(/assets/images/background.png)'}
-              bgSize={'cover'}
-              bgPos={'center'}
-              bgAttachment={'fixed'}
-            >
-              <Header />
-              <Box flex={1}>
-                {children}
-              </Box>
-              <Footer />
-              <Toaster />
-            </Flex>
-          </AdSenseProvider>
+          <GoogleAnalyticsProvider measurementId={ANALYTICS_CONFIG.measurementId}>
+            <GoogleAnalytics />
+            <AdSenseProvider clientId={ADSENSE_CONFIG.clientId}>
+              <AdSenseAutoAds />
+              <Flex
+                direction={'column'}
+                minH={'100vh'}
+                bgImage={'url(/assets/images/background.png)'}
+                bgSize={'cover'}
+                bgPos={'center'}
+                bgAttachment={'fixed'}
+              >
+                <Header />
+                <Box flex={1}>
+                  {children}
+                </Box>
+                <Footer />
+                <Toaster />
+              </Flex>
+            </AdSenseProvider>
+          </GoogleAnalyticsProvider>
         </ChakraProvider>
 
         <TanStackDevtools
