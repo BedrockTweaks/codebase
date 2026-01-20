@@ -31,8 +31,11 @@ const config = defineConfig(() => {
       viteTsConfigPaths({
         projects: ['./tsconfig.json'],
       }),
-
-      tanstackStart(),
+      tanstackStart({
+        server: {
+          entry: 'server.ts',
+        },
+      }),
       viteReact({
         babel: {
           plugins: ['babel-plugin-react-compiler'],
