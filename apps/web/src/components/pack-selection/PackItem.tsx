@@ -65,7 +65,6 @@ export function PackItem({ pack, categoryId }: PackItemProps): JSX.Element {
         <Box position={'relative'} w={'90px'}>
           <Image
             src={iconUrl}
-            alt={'pack icon'}
             w={'90px'}
             h={'90px'}
             objectFit={'cover'}
@@ -76,7 +75,6 @@ export function PackItem({ pack, categoryId }: PackItemProps): JSX.Element {
           {pack.disabled && (
             <Image
               src={'/assets/images/disabled_overlay.png'}
-              alt={'disabled overlay'}
               position={'absolute'}
               top={0}
               left={0}
