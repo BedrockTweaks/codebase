@@ -3,9 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "dotenv -e .env.local -- cross-env NODE_OPTIONS=\"--import ./instrument.server.mjs\" vite dev --port 3000",
-    "build": "vite build && shx cp instrument.server.mjs .output/server",
-    "start": "node --import ./.output/server/instrument.server.mjs .output/server/index.mjs",
+    "dev": "dotenv -e .env.local -- cross-env vite dev --port 3000",
+    "build": "vite build",
+    "start": "node .output/server/index.mjs",
     "lint": "eslint",
     "preview": "vite preview",
     "test": "vitest run",

@@ -1,18 +1,30 @@
 {
-  "$schema": "https://turborepo.dev/schema.json",
-  "ui": "tui",
-  "tasks": {
-    "build": {
-      "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".output/**"]
-    },
-    "lint": {
-      "dependsOn": ["^lint"]
-    },
-    "dev": {
-      "cache": false,
-      "persistent": true
-    }
-  }
+	"$schema": "https://turborepo.dev/schema.json",
+	"ui": "tui",
+	"tasks": {
+		"build": {
+			"dependsOn": [
+				"^build"
+			],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				".env*"
+			],
+			"outputs": [
+				".output/**"
+			],
+			"passThroughEnv": [
+				"SENTRY_AUTH_TOKEN"
+			]
+		},
+		"lint": {
+			"dependsOn": [
+				"^lint"
+			]
+		},
+		"dev": {
+			"cache": false,
+			"persistent": true
+		}
+	}
 }

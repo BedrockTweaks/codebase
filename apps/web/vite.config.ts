@@ -4,19 +4,14 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import viteReact from '@vitejs/plugin-react';
 import { nitro } from 'nitro/vite';
 import { fileURLToPath, URL } from 'url';
-import { defineConfig, LibraryFormats } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import viteTsConfigPaths from 'vite-tsconfig-paths';
 
-const config = defineConfig(() => {
-  const env = process.env;
+const config = defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '');
 
   return {
     build: {
-      lib: {
-        entry: 'instrument.server.mjs',
-        formats: ['es'] as LibraryFormats[],
-        fileName: 'instrument.server',
-      },
       sourcemap: true,
     },
     resolve: {
@@ -33,7 +28,7 @@ const config = defineConfig(() => {
       }),
       tanstackStart({
         server: {
-          entry: 'server.ts',
+          entry: './src/server.ts',
         },
       }),
       viteReact({
