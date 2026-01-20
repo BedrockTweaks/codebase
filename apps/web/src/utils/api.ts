@@ -1,7 +1,4 @@
 import type { DownloadRequest, SectionResponse } from '@/models';
-import { config } from 'dotenv';
-
-config();
 
 export function getApiUrl(): string {
   if (typeof window === 'undefined') {
