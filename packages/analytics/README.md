@@ -4,9 +4,9 @@ Google Analytics (gtag.js) integration for BedrockTweaks that handles SSR hydrat
 
 ## Features
 
-- Client-side only rendering to avoid SSR hydration issues
+- Client-side only execution to avoid SSR hydration issues
 - Automatic script loading and initialization
-- Context-based configuration
+- Simple hook-based API
 - TypeScript support
 
 ## Installation
@@ -25,40 +25,43 @@ This is an internal workspace package. Add it to your dependencies:
 
 ### Basic Setup
 
-Wrap your application with the `GoogleAnalyticsProvider`:
+Call the `useGoogleAnalytics` hook in your root component:
 
 ```tsx
-import { GoogleAnalyticsProvider, GoogleAnalytics } from '@bt/analytics';
+import { useGoogleAnalytics } from '@bt/analytics';
 
 function App() {
+  useGoogleAnalytics('G-XXXXXXXXXX');
+
   return (
-    <GoogleAnalyticsProvider measurementId={'G-XXXXXXXXXX'}>
-      <GoogleAnalytics />
+    <div>
       {/* Your app content */}
-    </GoogleAnalyticsProvider>
+    </div>
   );
 }
 ```
 
 ## API
 
-### `GoogleAnalyticsProvider`
+### `useGoogleAnalytics`
 
-Provider component that configures the Google Analytics measurement ID.
+Hook that loads and initializes the Google Analytics script.
 
-**Props:**
+**Parameters:**
 - `measurementId` (string, required): Your Google Analytics measurement ID (e.g., 'G-XXXXXXXXXX')
-- `children` (ReactNode, required): Child components
 
-### `GoogleAnalytics`
+**Returns:**
+- `isLoaded` (boolean): Whether the analytics script has loaded successfully
 
-Component that loads and initializes the Google Analytics script. Place this once in your application root.
-
-**Note:** This component only renders on the client side to avoid hydration issues.
+**Example:**
+```tsx
+const { isLoaded } = useGoogleAnalytics('G-XXXXXXXXXX');
+```
 
 ## How it Works
 
-1. The `GoogleAnalytics` component only renders after the client-side hydration
+1. The hook only executes on the client side to avoid hydration issues
 2. It dynamically loads the gtag.js script from Google
 3. Initializes the analytics with your measurement ID
-4. All loading happens client-side to prevent SSR/hydration mismatches
+4. Prevents duplicate script loading if called multiple times
+5. Cleans up the script on unmount

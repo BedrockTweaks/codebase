@@ -1,5 +1,5 @@
 import { AdSenseAutoAds, AdSenseProvider } from '@bt/adsense';
-import { GoogleAnalytics, GoogleAnalyticsProvider } from '@bt/analytics';
+import { useGoogleAnalytics } from '@bt/analytics';
 import { Toaster } from '@/components/Toaster';
 import { ADSENSE_CONFIG } from '@/config/adsense';
 import { ANALYTICS_CONFIG } from '@/config/analytics';
@@ -106,6 +106,8 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 });
 
 function RootDocument({ children }: { children: React.ReactNode }): JSX.Element {
+  useGoogleAnalytics(ANALYTICS_CONFIG.measurementId);
+
   return (
     <html lang={'en'}>
       <head>
@@ -113,27 +115,24 @@ function RootDocument({ children }: { children: React.ReactNode }): JSX.Element 
       </head>
       <body>
         <ChakraProvider value={system}>
-          <GoogleAnalyticsProvider measurementId={ANALYTICS_CONFIG.measurementId}>
-            <GoogleAnalytics />
-            <AdSenseProvider clientId={ADSENSE_CONFIG.clientId}>
-              <AdSenseAutoAds />
-              <Flex
-                direction={'column'}
-                minH={'100vh'}
-                bgImage={'url(/assets/images/background.png)'}
-                bgSize={'cover'}
-                bgPos={'center'}
-                bgAttachment={'fixed'}
-              >
-                <Header />
-                <Box flex={1}>
-                  {children}
-                </Box>
-                <Footer />
-                <Toaster />
-              </Flex>
-            </AdSenseProvider>
-          </GoogleAnalyticsProvider>
+          <AdSenseProvider clientId={ADSENSE_CONFIG.clientId}>
+            <AdSenseAutoAds />
+            <Flex
+              direction={'column'}
+              minH={'100vh'}
+              bgImage={'url(/assets/images/background.png)'}
+              bgSize={'cover'}
+              bgPos={'center'}
+              bgAttachment={'fixed'}
+            >
+              <Header />
+              <Box flex={1}>
+                {children}
+              </Box>
+              <Footer />
+              <Toaster />
+            </Flex>
+          </AdSenseProvider>
         </ChakraProvider>
 
         <TanStackDevtools

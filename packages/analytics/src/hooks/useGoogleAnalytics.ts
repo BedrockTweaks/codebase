@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useGoogleAnalyticsContext } from '../contexts/GoogleAnalyticsContext';
 
 declare global {
   interface Window {
@@ -15,9 +14,10 @@ interface UseGoogleAnalytics {
 /**
  * Hook to manage Google Analytics (gtag.js) script loading.
  * Handles client-side only execution to avoid SSR hydration issues.
+ *
+ * @param measurementId - Google Analytics measurement ID (e.g., 'G-XXXXXXXXXX')
  */
-export function useGoogleAnalytics(): UseGoogleAnalytics {
-  const { measurementId } = useGoogleAnalyticsContext();
+export function useGoogleAnalytics(measurementId: string): UseGoogleAnalytics {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
