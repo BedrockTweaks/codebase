@@ -4,7 +4,7 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import viteReact from '@vitejs/plugin-react';
 import { nitro } from 'nitro/vite';
 import { fileURLToPath, URL } from 'url';
-import { defineConfig } from 'vite';
+import { defineConfig, LibraryFormats } from 'vite';
 import viteTsConfigPaths from 'vite-tsconfig-paths';
 
 const config = defineConfig(() => {
@@ -12,6 +12,11 @@ const config = defineConfig(() => {
 
   return {
     build: {
+      lib: {
+        entry: 'instrument.server.mjs',
+        formats: ['es'] as LibraryFormats[],
+        fileName: 'instrument.server',
+      },
       sourcemap: true,
     },
     resolve: {
