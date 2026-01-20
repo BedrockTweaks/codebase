@@ -43,7 +43,7 @@ jobs:
         uses: SpicyPizza/create-envfile@v2
         with:
           envkey_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          envkey_API_URL: ${{ inputs.environment == 'prod' && secrets.API_URL_PROD || vars.API_URL_DEV }}
+          envkey_API_URL: ${{ inputs.environment == 'prod' && secrets.API_URL_PROD || secrets.API_URL_DEV }}
           envkey_VITE_SENTRY_DSN: ${{ vars.VITE_SENTRY_DSN }}
           envkey_VITE_SENTRY_ORG: ${{ vars.VITE_SENTRY_ORG }}
           envkey_VITE_SENTRY_PROJECT: ${{ vars.VITE_SENTRY_PROJECT }}
@@ -61,7 +61,7 @@ jobs:
         uses: SpicyPizza/create-envfile@v2
         with:
           envkey_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          envkey_API_URL: ${{ inputs.environment == 'prod' && secrets.API_URL_PROD || vars.API_URL_DEV }}
+          envkey_API_URL: ${{ inputs.environment == 'prod' && secrets.API_URL_PROD || secrets.API_URL_DEV }}
           directory: "apps/web/.output/server"
           file_name: ".env"
           fail_on_empty: false
