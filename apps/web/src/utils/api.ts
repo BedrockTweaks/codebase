@@ -3,7 +3,7 @@ import type { DownloadRequest, SectionResponse } from '@/models';
 export function getApiUrl(): string {
   if (typeof window === 'undefined') {
     // Server / SSR
-    return import.meta.env.PROD ? process.env.API_URL! : 'http://localhost:8000';
+    return import.meta.env.PROD ? (import.meta.env.API_URL ?? process.env.API_URL!) : 'http://localhost:8000';
   }
 
   // Browser
