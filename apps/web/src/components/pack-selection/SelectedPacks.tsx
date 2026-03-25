@@ -5,20 +5,20 @@ import { generatePackName } from '@/utils/packs';
 import {
   Box,
   CloseButton,
-  DownloadTrigger,
   Flex,
   Heading,
   Image,
   Text,
   VStack,
 } from '@chakra-ui/react';
+import type { GeneratedPackResponse } from '@bt/types';
 import { UseMutationResult } from '@tanstack/react-query';
 import { JSX, useMemo, useState } from 'react';
 import { toaster } from '../Toaster';
 
 interface SelectedPacksProps {
   compatibleVersions: number[];
-  onDownload: UseMutationResult<Blob, Error, DownloadRequest>;
+  onDownload: UseMutationResult<GeneratedPackResponse, Error, DownloadRequest>;
   onClose?: () => void;
 }
 
@@ -29,7 +29,7 @@ export function SelectedPacks({ compatibleVersions, onDownload, onClose }: Selec
 
   const generatedPackName = useMemo(() => generatePackName(section, packName), [section, packName]);
 
-  const handleDownloadData = async (): Promise<Blob> => {
+  const handleDownload = (): void => {
     if (!generatedPackName.isValid) {
       toaster.error({
         title: 'Invalid Pack Name',
@@ -47,19 +47,22 @@ export function SelectedPacks({ compatibleVersions, onDownload, onClose }: Selec
       categories,
     };
 
-    return new Promise((resolve, reject) => {
-      onDownload.mutate(request, {
-        onSuccess: (blob) => {
-          resolve(blob);
-        },
-        onError: (error) => {
-          toaster.error({
-            title: 'Download Failed',
-            description: error instanceof Error ? error.message : 'An unknown error occurred during download.',
-          });
-          reject(error);
-        },
-      });
+    onDownload.mutate(request, {
+      onSuccess: (response) => {
+        // Trigger download using the URL
+        window.location.href = response.downloadUrl;
+
+        toaster.success({
+          title: 'Download Started',
+          description: 'Your pack is being downloaded.',
+        });
+      },
+      onError: (error) => {
+        toaster.error({
+          title: 'Download Failed',
+          description: error instanceof Error ? error.message : 'An unknown error occurred during download.',
+        });
+      },
     });
   };
 
@@ -158,21 +161,15 @@ export function SelectedPacks({ compatibleVersions, onDownload, onClose }: Selec
             {`Compatible versions: ${compatibleVersions.toString().replace(/,/g, '.')}+`}
           </Text>
 
-          <DownloadTrigger
-            data={handleDownloadData}
-            fileName={generatedPackName.fileName}
-            mimeType={'application/octet-stream'}
-            asChild
+          <Button
+            variant={'solid'}
+            size={'lg'}
+            width={'full'}
+            disabled={!selectedPacks.length || onDownload.isPending}
+            onClick={handleDownload}
           >
-            <Button
-              variant={'solid'}
-              size={'lg'}
-              width={'full'}
-              disabled={!selectedPacks.length || onDownload.isPending}
-            >
-              {onDownload.isPending ? 'Downloading...' : 'Download'}
-            </Button>
-          </DownloadTrigger>
+            {onDownload.isPending ? 'Downloading...' : 'Download'}
+          </Button>
         </VStack>
       </VStack>
 

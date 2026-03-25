@@ -1,0 +1,20 @@
+{
+  "name": "@bt/types",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@bt/config": "workspace:*",
+    "@types/node": "^22.14.2",
+    "typescript": "^5.9.0"
+  }
+}

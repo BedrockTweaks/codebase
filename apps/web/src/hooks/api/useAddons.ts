@@ -1,5 +1,6 @@
 import { type DownloadRequest, type SectionResponse } from '@/models';
 import { downloadPacks, fetchSectionData } from '@/utils/api';
+import type { GeneratedPackResponse } from '@bt/types';
 import {
   queryOptions,
   useMutation,
@@ -25,7 +26,11 @@ export function useAddons(): UseSuspenseQueryResult<SectionResponse, Error> {
  * Download selected addons as a zip file
  * Endpoint: POST /api/addons
  */
-export function useDownloadAddons(): UseMutationResult<Blob, Error, DownloadRequest> {
+export function useDownloadAddons(): UseMutationResult<
+  GeneratedPackResponse,
+  Error,
+  DownloadRequest
+> {
   return useMutation({
     mutationFn: (data: DownloadRequest) => downloadPacks('addons', data),
   });

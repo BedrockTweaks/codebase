@@ -1,0 +1,36 @@
+{
+	"name": "@bt/api",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "tsx watch src/index.ts",
+		"build": "tsc && tsx src/index.ts",
+		"start": "node .output/index.js",
+		"lint": "eslint . --max-warnings 0",
+		"test": "vitest"
+	},
+	"dependencies": {
+		"@bt/types": "workspace:*",
+		"@hono/node-server": "^1.14.3",
+		"@hono/swagger-ui": "^0.6.1",
+		"@hono/zod-openapi": "^0.19.4",
+		"archiver": "^7.0.1",
+		"dotenv": "^16.0.0",
+		"fs-extra": "^11.2.0",
+		"hono": "^4.7.7",
+		"uuid": "^11.0.5",
+		"zod": "^3.24.1"
+	},
+	"devDependencies": {
+		"@bt/config": "workspace:*",
+		"@types/archiver": "^6.0.3",
+		"@types/fs-extra": "^11.0.4",
+		"@types/node": "^22.14.2",
+		"@types/uuid": "^10.0.0",
+		"eslint": "^9.19.0",
+		"tsx": "^4.19.2",
+		"typescript": "^5.9.0",
+		"vitest": "^4.0.18"
+	}
+}

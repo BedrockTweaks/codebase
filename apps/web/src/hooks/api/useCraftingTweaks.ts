@@ -1,5 +1,6 @@
 import { type DownloadRequest, type SectionResponse } from '@/models';
 import { downloadPacks, fetchSectionData } from '@/utils/api';
+import type { GeneratedPackResponse } from '@bt/types';
 import {
   queryOptions,
   useMutation,
@@ -25,7 +26,11 @@ export function useCraftingTweaks(): UseSuspenseQueryResult<SectionResponse, Err
  * Download selected crafting tweaks as a zip file
  * Endpoint: POST /api/crafting-tweaks
  */
-export function useDownloadCraftingTweaks(): UseMutationResult<Blob, Error, DownloadRequest> {
+export function useDownloadCraftingTweaks(): UseMutationResult<
+  GeneratedPackResponse,
+  Error,
+  DownloadRequest
+> {
   return useMutation({
     mutationFn: (data: DownloadRequest) => downloadPacks('crafting-tweaks', data),
   });

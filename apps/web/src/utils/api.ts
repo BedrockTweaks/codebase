@@ -1,4 +1,5 @@
 import type { DownloadRequest, SectionResponse } from '@/models';
+import type { GeneratedPackResponse } from '@bt/types';
 
 export function getApiUrl(): string {
   if (typeof window === 'undefined') {
@@ -30,8 +31,12 @@ export async function fetchSectionData(section: string): Promise<SectionResponse
  * Download selected packs as a zip file
  * @param section - The section endpoint name
  * @param data - Download request with selected categories and packs
+ * @returns Download URL and metadata
  */
-export async function downloadPacks(section: string, data: DownloadRequest): Promise<Blob> {
+export async function downloadPacks(
+  section: string,
+  data: DownloadRequest,
+): Promise<GeneratedPackResponse> {
   const response = await fetch(`${getApiUrl()}/api/${section}`, {
     method: 'POST',
     headers: {
@@ -41,20 +46,13 @@ export async function downloadPacks(section: string, data: DownloadRequest): Pro
   });
 
   if (!response.ok) {
-    // Handle blob error response
-    const blob = await response.blob();
+    // Handle JSON error response
+    const errorJson = await response.json();
 
-    if (blob.type === 'application/json') {
-      const text = await blob.text();
-      const errorJson = JSON.parse(text);
-
-      throw errorJson;
-    }
-
-    throw new Error(`Failed to download ${section}: ${response.statusText}`);
+    throw new Error(errorJson.message || `Failed to download ${section}: ${response.statusText}`);
   }
 
-  return response.blob();
+  return response.json();
 }
 
 interface GitHubRelease {
