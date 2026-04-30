@@ -3,19 +3,19 @@ import type {
   Category,
   Combination,
   CreatePackDto,
-  GeneratedPack,
   PacksJSON,
   Section,
 } from '@bt/types';
 import { getPacks } from './listing';
 import { generateManifest, generatePacksInfo } from './metadata';
-import { createAddonsZip, createResourcePackZip, zipToBuffer } from './zip';
+import { createAddonsZip, createResourcePackZip, finalizeZipToFile } from './zip';
 
 export const createPack = async (
   createPackDto: CreatePackDto,
   section: Section,
+  outputPath: string,
   config: Config,
-): Promise<GeneratedPack> => {
+): Promise<{ packName: string }> => {
   const packsPaths = await getPacksPaths(createPackDto, section, config);
   const packsInfo = await generatePacksInfo(createPackDto, section, config);
 
@@ -25,9 +25,9 @@ export const createPack = async (
     zip.append(packsInfo, { name: 'packs.info' });
     zip.file('./assets/text/credits.txt', { name: 'credits.txt' });
 
-    const buffer = await zipToBuffer(zip);
+    await finalizeZipToFile(zip, outputPath);
 
-    return { buffer, packName: createPackDto.name };
+    return { packName: createPackDto.name };
   }
 
   // Resource Packs / Crafting Tweaks
@@ -39,9 +39,9 @@ export const createPack = async (
   zip.file('./assets/images/pack_icon.png', { name: 'pack_icon.png' });
   zip.file('./assets/text/credits.txt', { name: 'credits.txt' });
 
-  const buffer = await zipToBuffer(zip);
+  await finalizeZipToFile(zip, outputPath);
 
-  return { buffer, packName: createPackDto.name };
+  return { packName: createPackDto.name };
 };
 
 export const getRealPaths = (categories: Category[], combinations: Combination[]): string[] => {
@@ -84,7 +84,7 @@ export const getRealPaths = (categories: Category[], combinations: Combination[]
   return finalPaths;
 };
 
-const getPacksPaths = async (
+export const getPacksPaths = async (
   createPackDto: CreatePackDto,
   section: Section,
   config: Config,

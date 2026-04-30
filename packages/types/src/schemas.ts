@@ -55,13 +55,7 @@ export const createPackSchema = z.object({
   categories: z.array(categorySelectionSchema),
 });
 
-export const generatedPackSchema = z.object({
-  buffer: z.instanceof(Buffer),
-  packName: z.string(),
-});
-
 export const generatedPackResponseSchema = z.object({
   downloadUrl: z.string().url(),
   packName: z.string(),
-  expiresAt: z.string().datetime(),
 });

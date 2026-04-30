@@ -6,7 +6,6 @@ import type {
   createPackSchema,
   deepMergeFileSchema,
   generatedPackResponseSchema,
-  generatedPackSchema,
   messageSchema,
   packSchema,
   packsJSONSchema,
@@ -24,5 +23,4 @@ export type DeepMergeFile = z.infer<typeof deepMergeFileSchema>;
 export type PacksJSON = z.infer<typeof packsJSONSchema>;
 export type CategorySelection = z.infer<typeof categorySelectionSchema>;
 export type CreatePackDto = z.infer<typeof createPackSchema>;
-export type GeneratedPack = z.infer<typeof generatedPackSchema>;
 export type GeneratedPackResponse = z.infer<typeof generatedPackResponseSchema>;

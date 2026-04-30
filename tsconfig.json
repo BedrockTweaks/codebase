@@ -4,7 +4,7 @@
         "module": "ESNext",
         /* Bundler mode */
         "moduleResolution": "bundler",
-        "allowImportingTsExtensions": true,
+        "allowImportingTsExtensions": false,
         "verbatimModuleSyntax": false,
         "noEmit": true,
         "esModuleInterop": true,
@@ -17,10 +17,9 @@
         "noUnusedParameters": true,
         "noFallthroughCasesInSwitch": true,
         "noUncheckedSideEffectImports": true,
-        "baseUrl": ".",
         "paths": {
             "@bt/*": [
-                "packages/*"
+                "./packages/*"
             ]
         }
     }

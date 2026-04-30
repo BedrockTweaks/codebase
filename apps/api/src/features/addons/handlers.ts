@@ -1,49 +1,54 @@
-import { promises as fs } from 'node:fs';
 import type { Context } from 'hono';
 import { getConfig } from '@/config';
 import type { CreatePackDto } from '@bt/types';
-import { createPack } from '../shared/generation';
-import { getPacksFilePath } from '../shared/listing';
-import { saveTempFile } from '../shared/temp-storage';
+import { computeCacheKey, getCachedPack, getPackOutputPath, saveCachedPack } from '../shared/cache';
+import { buildStaticDownloadUrl } from '../shared/download-url';
+import { createPack, getPacksPaths } from '../shared/generation';
+import { getPacks } from '../shared/listing';
 
-export const handleGetAddons = async (c: Context): Promise<Response> => {
+export const handleGetAddons = async (c: Context) => {
   const config = getConfig();
-  const filePath = getPacksFilePath('addons', config);
+  const packs = await getPacks('addons', config);
 
-  const fileContent = await fs.readFile(filePath);
-
-  return c.body(fileContent, 200, {
-    'Content-Type': 'application/json',
+  return c.json(packs, 200, {
     'Cache-Control': 'no-store',
   });
 };
 
-export const handleCreateAddon = async (c: Context): Promise<Response> => {
+export const handleCreateAddon = async (c: Context) => {
   const config = getConfig();
   const createPackDto: CreatePackDto = await c.req.json();
 
   try {
-    const generatedPack = await createPack(createPackDto, 'addons', config);
-    const isProd = config.production;
-    const extension = isProd ? 'mcaddon' : 'zip';
-    const filename = `${createPackDto.name}.${extension}`;
+    const filename = `${createPackDto.name}.mcaddon`;
 
-    // Get base URL from request
-    const url = new URL(c.req.url);
-    const baseUrl = `${url.protocol}//${url.host}`;
+    const cacheKey = computeCacheKey('addons', createPackDto);
+    const packsPaths = await getPacksPaths(createPackDto, 'addons', config);
+    const cached = await getCachedPack(cacheKey, packsPaths, 'addons', config);
 
-    // Save to temp storage and get download URL
-    const { downloadUrl, expiresAt } = await saveTempFile(
-      generatedPack.buffer,
-      filename,
-      baseUrl,
-    );
+    if (cached) {
+      const downloadUrl = buildStaticDownloadUrl(c.req.url, 'addons', cacheKey, createPackDto.name);
+
+      return c.json(
+        {
+          downloadUrl,
+          packName: createPackDto.name,
+        },
+        200,
+      );
+    }
+
+    const outputPath = getPackOutputPath(cacheKey, config);
+    const { packName } = await createPack(createPackDto, 'addons', outputPath, config);
+
+    await saveCachedPack(cacheKey, filename, packsPaths, config);
+
+    const downloadUrl = buildStaticDownloadUrl(c.req.url, 'addons', cacheKey, packName);
 
     return c.json(
       {
         downloadUrl,
-        packName: generatedPack.packName,
-        expiresAt: expiresAt.toISOString(),
+        packName,
       },
       200,
     );

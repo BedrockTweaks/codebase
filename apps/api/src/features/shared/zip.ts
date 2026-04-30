@@ -1,6 +1,7 @@
+import { createWriteStream } from 'node:fs';
 import { join, relative, basename } from 'node:path';
 import { existsSync, readFileSync } from 'node:fs';
-import { readdir, stat, access } from 'node:fs/promises';
+import { readdir, stat, access, rename } from 'node:fs/promises';
 import { constants } from 'node:fs';
 import archiver, { type Archiver } from 'archiver';
 import type { Config } from '@/config';
@@ -187,21 +188,25 @@ const mergeLang = (section: string, filePath: string, packsPaths: string[], conf
   return mergedLang;
 };
 
-export const zipToBuffer = (zip: Archiver): Promise<Buffer> => new Promise((resolve, reject) => {
-  const chunks: Buffer[] = [];
+export const finalizeZipToFile = (zip: Archiver, outputPath: string): Promise<void> => {
+  const tmpPath = `${outputPath}.tmp`;
 
-  zip.on('warning', (err) => {
-    if (err.code !== 'ENOENT') {
-      reject(err);
-    }
-  });
-  zip.on('error', err => reject(err));
-  zip.on('data', (data) => {
-    chunks.push(data);
-  });
-  zip.on('end', () => {
-    resolve(Buffer.concat(chunks));
-  });
+  return new Promise((resolve, reject) => {
+    const output = createWriteStream(tmpPath);
 
-  void zip.finalize();
-});
+    zip.on('warning', (err) => {
+      if (err.code !== 'ENOENT') {
+        reject(err);
+      }
+    });
+    zip.on('error', err => reject(err));
+    output.on('error', err => reject(err));
+    output.on('close', () => {
+      rename(tmpPath, outputPath).then(resolve).catch(reject);
+    });
+
+    zip.pipe(output);
+
+    void zip.finalize();
+  });
+};

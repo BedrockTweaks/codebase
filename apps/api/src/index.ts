@@ -5,12 +5,8 @@ import { cors } from 'hono/cors';
 import { getConfig } from './config';
 import { addonsApp } from './features/addons';
 import { craftingTweaksApp } from './features/crafting-tweaks';
-import { downloadApp } from './features/download';
 import { resourcePacksApp } from './features/resource-packs';
-import {
-  cleanupAllTempFiles,
-  initTempStorage,
-} from './features/shared/temp-storage';
+import { initCacheDir } from './features/shared/cache';
 
 const app = new OpenAPIHono();
 
@@ -24,7 +20,6 @@ app.use('*', cors());
 app.route('/', resourcePacksApp);
 app.route('/', addonsApp);
 app.route('/', craftingTweaksApp);
-app.route('/', downloadApp);
 
 // OpenAPI documentation
 app.doc('/api/openapi.json', {
@@ -51,34 +46,26 @@ app.onError((err, c) => {
       message,
       statusCode,
     },
-    statusCode,
   );
 });
 
 // 404 handler
 app.notFound(c => c.json({ error: 'Not Found', statusCode: 404 }, 404));
 
-// Initialize temp storage
+// Initialize cache
 const initializeServer = async (): Promise<void> => {
-  await initTempStorage();
-  await cleanupAllTempFiles();
+  await initCacheDir(config);
 
-  console.info('Temp storage initialized (lazy cleanup enabled)');
+  console.info('Pack cache initialized');
 };
 
-// Start server in development
-if (import.meta.env?.DEV || process.env['NODE_ENV'] !== 'production') {
-  void initializeServer().then(() => {
-    console.info(`Server is running on port ${config.nodePort}`);
+initializeServer().then(() => {
+  console.info(`Server is running on port ${config.nodePort}`);
 
-    serve({
-      fetch: app.fetch,
-      port: config.nodePort,
-    });
+  serve({
+    fetch: app.fetch,
+    port: config.nodePort,
   });
-} else {
-  // Initialize in production (server started externally)
-  void initializeServer();
-}
+});
 
 export default app;

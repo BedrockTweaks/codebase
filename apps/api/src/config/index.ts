@@ -6,6 +6,8 @@ const configSchema = z.object({
   production: z.string().transform(val => val === 'true').default('false'),
   storageUrl: z.string().min(1),
   metadataAuthors: z.string().min(1),
+  cacheDir: z.string().optional(),
+  cacheMaxBytes: z.coerce.number().optional(),
 });
 
 export type Config = z.infer<typeof configSchema>;
@@ -22,6 +24,8 @@ export const getConfig = (): Config => {
     production: process.env['PRODUCTION'],
     storageUrl: process.env['STORAGE_URL'],
     metadataAuthors: process.env['METADATA_AUTHORS'],
+    cacheDir: process.env['CACHE_DIR'],
+    cacheMaxBytes: process.env['CACHE_MAX_BYTES'],
   });
 
   if (!result.success) {

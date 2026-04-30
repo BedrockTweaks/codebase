@@ -1,5 +1,5 @@
 import { createRoute, z } from '@hono/zod-openapi';
-import { createPackSchema, generatedPackResponseSchema } from '@bt/types';
+import { createPackSchema, generatedPackResponseSchema, packsJSONSchema } from '@bt/types';
 
 export const getCraftingTweaksRoute = createRoute({
   method: 'get',
@@ -10,11 +10,7 @@ export const getCraftingTweaksRoute = createRoute({
       description: 'Returns the list of crafting tweaks',
       content: {
         'application/json': {
-          schema: z.object({
-            section: z.string(),
-            version: z.array(z.number()),
-            categories: z.array(z.any()),
-          }),
+          schema: packsJSONSchema,
         },
       },
     },
