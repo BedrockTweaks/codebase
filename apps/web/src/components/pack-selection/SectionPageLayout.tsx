@@ -1,5 +1,6 @@
 import { PackSelectionProvider } from '@/contexts/PackSelectionContext';
 import { DownloadRequest, SectionResponse } from '@/models';
+import type { GeneratedPackResponse } from '@bt/types';
 import { Button } from '@/theming/components';
 import {
   Box,
@@ -19,7 +20,7 @@ import { SelectedPacks } from './SelectedPacks';
 
 interface SectionPageLayoutProps {
   data: SectionResponse;
-  downloadMutation: UseMutationResult<Blob, Error, DownloadRequest>;
+  downloadMutation: UseMutationResult<GeneratedPackResponse, Error, DownloadRequest>;
   children?: ReactNode;
 }
 

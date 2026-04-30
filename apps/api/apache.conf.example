@@ -1,0 +1,20 @@
+# Required Apache modules:
+#   a2enmod rewrite headers
+
+# Adjust this to the absolute path that contains generated cache artifacts.
+<Directory "/var/www/bedrocktweaks/cache">
+  Options -Indexes
+  AllowOverride None
+  Require all granted
+</Directory>
+
+RewriteEngine On
+
+# Map user-facing download URLs to the immutable cached zip artifact.
+RewriteRule ^/download/([A-Fa-f0-9]+)/[^/]+\.(mcaddon|mcpack)$ /cache/$1.zip [END]
+
+# Force download behavior on the friendly URL.
+<LocationMatch "^/download/[A-Fa-f0-9]+/[^/]+\.(mcaddon|mcpack)$">
+  Header always set Content-Disposition "attachment"
+  Header always set X-Content-Type-Options "nosniff"
+</LocationMatch>

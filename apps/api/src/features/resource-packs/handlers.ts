@@ -5,8 +5,9 @@ import { computeCacheKey, getCachedPack, getPackOutputPath, saveCachedPack } fro
 import { buildStaticDownloadUrl } from '../shared/download-url';
 import { createPack, getPacksPaths } from '../shared/generation';
 import { getPacks } from '../shared/listing';
+import type { GeneratedPackResult, PacksResponse } from '../shared/responses';
 
-export const handleGetResourcePacks = async (c: Context) => {
+export const handleGetResourcePacks = async (c: Context): Promise<PacksResponse> => {
   const config = getConfig();
   const packs = await getPacks('resource_packs', config);
 
@@ -15,7 +16,7 @@ export const handleGetResourcePacks = async (c: Context) => {
   });
 };
 
-export const handleCreateResourcePack = async (c: Context) => {
+export const handleCreateResourcePack = async (c: Context): Promise<GeneratedPackResult> => {
   const config = getConfig();
   const createPackDto: CreatePackDto = await c.req.json();
 
