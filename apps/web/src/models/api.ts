@@ -1,3 +1,4 @@
+import type { CreatePackDto } from '@bt/types';
 import type { Category } from './category';
 import { Section } from './common';
 
@@ -7,12 +8,5 @@ export interface SectionResponse {
   categories: Category[];
 }
 
-export interface DownloadRequest {
-  name?: string;
-  categories: CategorySelection[];
-}
-
-export interface CategorySelection {
-  id: string;
-  packs: string[];
-}
+export type DownloadRequest = CreatePackDto;
+export type CategorySelection = CreatePackDto['categories'][number];

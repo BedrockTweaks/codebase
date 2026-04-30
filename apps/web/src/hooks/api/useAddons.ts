@@ -23,7 +23,7 @@ export function useAddons(): UseSuspenseQueryResult<SectionResponse, Error> {
 }
 
 /**
- * Download selected addons as a zip file
+ * Create selected addons and return the generated download URL
  * Endpoint: POST /api/addons
  */
 export function useDownloadAddons(): UseMutationResult<

@@ -23,7 +23,7 @@ export function useResourcePacks(): UseSuspenseQueryResult<SectionResponse, Erro
 }
 
 /**
- * Download selected resource packs as a zip file
+ * Create selected resource packs and return the generated download URL
  * Endpoint: POST /api/resource-packs
  */
 export function useDownloadResourcePacks(): UseMutationResult<

@@ -23,7 +23,7 @@ export function useCraftingTweaks(): UseSuspenseQueryResult<SectionResponse, Err
 }
 
 /**
- * Download selected crafting tweaks as a zip file
+ * Create selected crafting tweaks and return the generated download URL
  * Endpoint: POST /api/crafting-tweaks
  */
 export function useDownloadCraftingTweaks(): UseMutationResult<

@@ -28,10 +28,10 @@ export async function fetchSectionData(section: string): Promise<SectionResponse
 }
 
 /**
- * Download selected packs as a zip file
+ * Create a pack and return its static download URL
  * @param section - The section endpoint name
  * @param data - Download request with selected categories and packs
- * @returns Download URL and metadata
+ * @returns Download URL and generated pack metadata
  */
 export async function downloadPacks(
   section: string,
