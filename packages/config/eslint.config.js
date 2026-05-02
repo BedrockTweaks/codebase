@@ -2,19 +2,10 @@ import js from '@eslint/js';
 import stylistic from '@stylistic/eslint-plugin';
 import { defineConfig } from 'eslint/config';
 import tseslint from 'typescript-eslint';
-import turbo from 'eslint-plugin-turbo';
 
 export default defineConfig([
   {
     ignores: ['**/node_modules/**', '**/dist/**', '**/.turbo/**', '**/.wrangler/**', "**/.tanstack/**"],
-  },
-
-  {
-    ...turbo.configs["flat/recommended"],
-    rules: {
-      ...turbo.configs["flat/recommended"].rules,
-      "turbo/no-undeclared-env-vars": "off",
-    }
   },
 
   // Stylistic configuration factory (only for JS/TS files)

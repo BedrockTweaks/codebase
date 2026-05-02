@@ -7,7 +7,9 @@ const configSchema = z.object({
   storageUrl: z.string().min(1),
   metadataAuthors: z.string().min(1),
   cacheDir: z.string().optional(),
+  downloadsDir: z.string().optional(),
   cacheMaxBytes: z.coerce.number().optional(),
+  downloadsMaxBytes: z.coerce.number().optional(),
 });
 
 export type Config = z.infer<typeof configSchema>;
@@ -26,6 +28,8 @@ export const getConfig = (): Config => {
     metadataAuthors: process.env['METADATA_AUTHORS'],
     cacheDir: process.env['CACHE_DIR'],
     cacheMaxBytes: process.env['CACHE_MAX_BYTES'],
+    downloadsDir: process.env['DOWNLOADS_DIR'],
+    downloadsMaxBytes: process.env['DOWNLOADS_MAX_BYTES'],
   });
 
   if (!result.success) {

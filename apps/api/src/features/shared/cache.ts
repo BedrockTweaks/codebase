@@ -1,46 +1,65 @@
-import { createHash } from 'node:crypto';
+﻿import type { Config } from '@/config';
+import type { CreatePackDto, Section } from '@bt/types';
+import { createHash, randomUUID } from 'node:crypto';
 import { promises as fs } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-
 import { z } from 'zod';
 
-import type { Config } from '@/config';
-import type { CreatePackDto, Section } from '@bt/types';
-
-const cacheMetaSchema = z.object({
-  fileName: z.string(),
+const assemblyMetaSchema = z.object({
   createdAt: z.string(),
   lastAccessed: z.string(),
   packsPaths: z.array(z.string()),
 });
 
-type CacheMeta = z.infer<typeof cacheMetaSchema>;
+type AssemblyMeta = z.infer<typeof assemblyMetaSchema>;
 
 const getCacheDir = (config: Config): string =>
   config.cacheDir ?? join(tmpdir(), 'bedrock-tweaks-cache');
 
+const getAssemblyCacheDir = (config: Config): string => join(getCacheDir(config), 'cache');
+const getDownloadsDir = (config: Config): string => config.downloadsDir ?? join(getCacheDir(config), 'downloads');
+
 const getCacheMaxBytes = (config: Config): number =>
   config.cacheMaxBytes ?? 4 * 1024 * 1024 * 1024; // 4GB
 
-export const getPackOutputPath = (cacheKey: string, config: Config): string =>
-  join(getCacheDir(config), cacheKey);
+const getDownloadsMaxBytes = (config: Config): number =>
+  config.downloadsMaxBytes ?? 2 * 1024 * 1024 * 1024; // 2GB
+
+export const getAssembledPackPath = (assemblyKey: string, config: Config): string =>
+  join(getAssemblyCacheDir(config), assemblyKey);
+
+export const generateDownloadId = (): string => randomUUID();
+
+export const prepareDownloadPath = async (downloadId: string, filename: string, config: Config): Promise<string> => {
+  const downloadDir = join(getDownloadsDir(config), downloadId);
+
+  await fs.mkdir(downloadDir, { recursive: true });
+
+  return join(downloadDir, filename);
+};
 
 export const initCacheDir = async (config: Config): Promise<void> => {
-  const dir = getCacheDir(config);
+  const rootDir = getCacheDir(config);
+  const assemblyDir = getAssemblyCacheDir(config);
+  const downloadsDir = getDownloadsDir(config);
 
   try {
-    await fs.mkdir(dir, { recursive: true });
+    await Promise.all([
+      fs.mkdir(rootDir, { recursive: true }),
+      fs.mkdir(assemblyDir, { recursive: true }),
+      fs.mkdir(downloadsDir, { recursive: true }),
+    ]);
 
-    console.info('Cache directory initialized:', dir);
+    console.info('Cache directories initialized:', { rootDir, assemblyDir, downloadsDir });
   } catch (error) {
-    console.error('Failed to initialize cache directory:', error);
+    console.error('Failed to initialize cache directories:', error);
 
     throw error;
   }
 };
 
-export const computeCacheKey = (section: Section, createPackDto: CreatePackDto): string => {
+export const computeAssemblyCacheKey = (section: Section, createPackDto: CreatePackDto): string => {
   const hash = createHash('sha256');
 
   hash.update(section);
@@ -96,7 +115,7 @@ const getMaxMtimeMs = async (dirPath: string): Promise<number> => {
   return maxMtime;
 };
 
-const isStale = async (
+const isAssemblyStale = async (
   packsPaths: string[],
   createdAt: string,
   section: Section,
@@ -116,108 +135,164 @@ const isStale = async (
   return false;
 };
 
-export const getCachedPack = async (
-  cacheKey: string,
+const removeAssemblyEntry = async (assemblyKey: string, config: Config): Promise<void> => {
+  const assemblyPath = getAssembledPackPath(assemblyKey, config);
+  const metaPath = join(getAssemblyCacheDir(config), `${assemblyKey}.meta`);
+
+  await fs.rm(assemblyPath, { recursive: true, force: true }).catch(() => undefined);
+  await fs.unlink(metaPath).catch(() => undefined);
+};
+
+export const getCachedAssembly = async (
+  assemblyKey: string,
   packsPaths: string[],
   section: Section,
   config: Config,
-): Promise<{ filePath: string; fileName: string } | null> => {
-  const cacheDir = getCacheDir(config);
-  const metaPath = join(cacheDir, `${cacheKey}.meta`);
-  const filePath = join(cacheDir, cacheKey);
+): Promise<{ dirPath: string } | null> => {
+  const assemblyDir = getAssemblyCacheDir(config);
+  const metaPath = join(assemblyDir, `${assemblyKey}.meta`);
+  const dirPath = getAssembledPackPath(assemblyKey, config);
 
   try {
     const metaContent = await fs.readFile(metaPath, 'utf-8');
     const parsed: unknown = JSON.parse(metaContent);
-    const meta: CacheMeta = cacheMetaSchema.parse(parsed);
+    const meta: AssemblyMeta = assemblyMetaSchema.parse(parsed);
 
-    await fs.access(filePath);
+    await fs.access(dirPath);
 
-    const stale = await isStale(packsPaths, meta.createdAt, section, config);
+    const stale = await isAssemblyStale(packsPaths, meta.createdAt, section, config);
 
     if (stale) {
-      await fs.unlink(filePath).catch(() => undefined);
-      await fs.unlink(metaPath).catch(() => undefined);
+      await removeAssemblyEntry(assemblyKey, config);
 
       return null;
     }
 
-    const updatedMeta: CacheMeta = {
+    const updatedMeta: AssemblyMeta = {
       ...meta,
       lastAccessed: new Date().toISOString(),
     };
 
     await fs.writeFile(metaPath, JSON.stringify(updatedMeta));
 
-    return { filePath, fileName: meta.fileName };
+    return { dirPath };
   } catch {
     return null;
   }
 };
 
-export const lookupCachedFile = async (
-  cacheKey: string,
-  config: Config,
-): Promise<{ filePath: string; fileName: string } | null> => {
-  const cacheDir = getCacheDir(config);
-  const metaPath = join(cacheDir, `${cacheKey}.meta`);
-  const filePath = join(cacheDir, cacheKey);
-
-  try {
-    const metaContent = await fs.readFile(metaPath, 'utf-8');
-    const parsed: unknown = JSON.parse(metaContent);
-    const meta: CacheMeta = cacheMetaSchema.parse(parsed);
-
-    await fs.access(filePath);
-
-    const updatedMeta: CacheMeta = {
-      ...meta,
-      lastAccessed: new Date().toISOString(),
-    };
-
-    await fs.writeFile(metaPath, JSON.stringify(updatedMeta));
-
-    return { filePath, fileName: meta.fileName };
-  } catch {
-    return null;
-  }
-};
-
-export const saveCachedPack = async (
-  cacheKey: string,
-  fileName: string,
+export const saveAssemblyCache = async (
+  assemblyKey: string,
   packsPaths: string[],
   config: Config,
 ): Promise<void> => {
-  const cacheDir = getCacheDir(config);
-  const metaPath = join(cacheDir, `${cacheKey}.meta`);
+  const assemblyDir = getAssemblyCacheDir(config);
+  const metaPath = join(assemblyDir, `${assemblyKey}.meta`);
   const now = new Date().toISOString();
 
-  const meta: CacheMeta = {
-    fileName,
+  const meta: AssemblyMeta = {
     createdAt: now,
     lastAccessed: now,
     packsPaths,
   };
 
   await fs.writeFile(metaPath, JSON.stringify(meta));
-
-  void evictLRU(config);
 };
 
-const getCacheSize = async (config: Config): Promise<number> => {
-  const cacheDir = getCacheDir(config);
+export const evictAssemblyCacheIfNeeded = async (config: Config): Promise<void> => {
+  const assemblyDir = getAssemblyCacheDir(config);
+  const maxBytes = getCacheMaxBytes(config);
 
   try {
-    const allFiles = await fs.readdir(cacheDir);
-    const dataFiles = allFiles.filter(f => !f.endsWith('.meta'));
+    const entries = await fs.readdir(assemblyDir, { withFileTypes: true });
+    const metaFiles = entries.filter(e => !e.isDirectory() && e.name.endsWith('.meta'));
+
+    const dirInfos: Array<{ key: string; lastAccessed: number }> = [];
+
+    for (const metaFile of metaFiles) {
+      const key = metaFile.name.slice(0, -5);
+      const metaPath = join(assemblyDir, metaFile.name);
+
+      try {
+        const metaContent = await fs.readFile(metaPath, 'utf-8');
+        const parsed: unknown = JSON.parse(metaContent);
+        const meta: AssemblyMeta = assemblyMetaSchema.parse(parsed);
+
+        dirInfos.push({ key, lastAccessed: new Date(meta.lastAccessed).getTime() });
+      } catch {
+        // skip malformed entries
+      }
+    }
+
+    dirInfos.sort((a, b) => a.lastAccessed - b.lastAccessed);
+
+    for (const entry of dirInfos) {
+      const currentSize = await getAssemblyCacheSize(assemblyDir);
+
+      if (currentSize <= maxBytes) {
+        break;
+      }
+
+      try {
+        await removeAssemblyEntry(entry.key, config);
+
+        console.info(`Evicted assembly cache entry: ${entry.key}`);
+      } catch (error) {
+        console.error(`Failed to evict assembly cache entry ${entry.key}:`, error);
+      }
+    }
+  } catch (error) {
+    console.error('Assembly cache eviction failed:', error);
+  }
+};
+
+const getAssemblyCacheSize = async (assemblyDir: string): Promise<number> => {
+  try {
+    const entries = await fs.readdir(assemblyDir, { withFileTypes: true });
+    const dirs = entries.filter(e => e.isDirectory());
 
     const sizes = await Promise.all(
-      dataFiles.map(async (file): Promise<number> => {
+      dirs.map(async (dir): Promise<number> => {
         try {
-          const stat = await fs.stat(join(cacheDir, file));
+          const stat = await fs.stat(join(assemblyDir, dir.name));
 
           return stat.size;
+        } catch {
+          return 0;
+        }
+      }),
+    );
+
+    return sizes.reduce((acc, s) => acc + s, 0);
+  } catch {
+    return 0;
+  }
+};
+
+const getDownloadsSize = async (config: Config): Promise<number> => {
+  const downloadsDir = getDownloadsDir(config);
+
+  try {
+    const entries = await fs.readdir(downloadsDir, { withFileTypes: true });
+    const dirs = entries.filter(e => e.isDirectory());
+
+    const sizes = await Promise.all(
+      dirs.map(async (dir): Promise<number> => {
+        try {
+          const files = await fs.readdir(join(downloadsDir, dir.name));
+          const fileSizes = await Promise.all(
+            files.map(async (file): Promise<number> => {
+              try {
+                const stat = await fs.stat(join(downloadsDir, dir.name, file));
+
+                return stat.size;
+              } catch {
+                return 0;
+              }
+            }),
+          );
+
+          return fileSizes.reduce((acc, s) => acc + s, 0);
         } catch {
           return 0;
         }
@@ -230,64 +305,68 @@ const getCacheSize = async (config: Config): Promise<number> => {
   }
 };
 
-const evictLRU = async (config: Config): Promise<void> => {
-  const cacheDir = getCacheDir(config);
-  const maxBytes = getCacheMaxBytes(config);
+export const evictDownloadsIfNeeded = async (config: Config): Promise<void> => {
+  const downloadsDir = getDownloadsDir(config);
+  const maxBytes = getDownloadsMaxBytes(config);
 
   try {
-    const currentSize = await getCacheSize(config);
+    const currentSize = await getDownloadsSize(config);
 
     if (currentSize <= maxBytes) {
       return;
     }
 
-    const allFiles = await fs.readdir(cacheDir);
-    const metaFiles = allFiles.filter(f => f.endsWith('.meta'));
-    const entries: Array<{ cacheKey: string; lastAccessed: number; size: number }> = [];
+    const entries = await fs.readdir(downloadsDir, { withFileTypes: true });
+    const dirs = entries.filter(e => e.isDirectory());
 
-    for (const metaFile of metaFiles) {
-      const cacheKey = metaFile.slice(0, -5);
-      const metaPath = join(cacheDir, metaFile);
+    const dirInfos: Array<{ id: string; mtimeMs: number; size: number }> = [];
+
+    for (const dir of dirs) {
+      const dirPath = join(downloadsDir, dir.name);
 
       try {
-        const metaContent = await fs.readFile(metaPath, 'utf-8');
-        const parsed: unknown = JSON.parse(metaContent);
-        const meta: CacheMeta = cacheMetaSchema.parse(parsed);
-        const dataPath = join(cacheDir, cacheKey);
-        const stat = await fs.stat(dataPath);
+        const files = await fs.readdir(dirPath);
 
-        entries.push({
-          cacheKey,
-          lastAccessed: new Date(meta.lastAccessed).getTime(),
-          size: stat.size,
-        });
+        let size = 0;
+        let mtimeMs = 0;
+
+        for (const file of files) {
+          const stat = await fs.stat(join(dirPath, file));
+
+          size += stat.size;
+
+          if (stat.mtimeMs > mtimeMs) {
+            mtimeMs = stat.mtimeMs;
+          }
+        }
+
+        dirInfos.push({ id: dir.name, mtimeMs, size });
       } catch {
-        // skip unreadable or incomplete entries
+        // skip unreadable dirs
       }
     }
 
-    entries.sort((a, b) => a.lastAccessed - b.lastAccessed);
+    dirInfos.sort((a, b) => a.mtimeMs - b.mtimeMs);
 
     const target = currentSize - maxBytes;
     let freed = 0;
 
-    for (const entry of entries) {
+    for (const entry of dirInfos) {
       if (freed >= target) {
         break;
       }
 
       try {
-        await fs.unlink(join(cacheDir, entry.cacheKey));
-        await fs.unlink(join(cacheDir, `${entry.cacheKey}.meta`));
+        await fs.rm(join(downloadsDir, entry.id), { recursive: true, force: true });
 
         freed += entry.size;
 
-        console.info(`Evicted cache entry: ${entry.cacheKey} (freed ${entry.size} bytes)`);
+        console.info(`Evicted download: ${entry.id} (freed ${entry.size} bytes)`);
       } catch (error) {
-        console.error(`Failed to evict cache entry ${entry.cacheKey}:`, error);
+        console.error(`Failed to evict download ${entry.id}:`, error);
       }
     }
   } catch (error) {
-    console.error('Cache eviction failed:', error);
+    console.error('Downloads eviction failed:', error);
   }
 };
