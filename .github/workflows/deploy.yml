@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: "Environment to deploy to"
+        description: 'Environment to deploy to'
         required: true
         type: choice
         options:
@@ -12,7 +12,7 @@ on:
           - prod
 
 env:
-  NODE_VERSION: "20"
+  NODE_VERSION: '20'
 
 jobs:
   build-and-deploy:
@@ -34,67 +34,72 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "pnpm"
+          cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Create build .env file
+      # ── Web ────────────────────────────────────────────────────────────────
+
+      - name: Create web build .env file
         uses: SpicyPizza/create-envfile@v2
         with:
           envkey_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          envkey_API_URL: ${{ inputs.environment == 'prod' && secrets.API_URL_PROD || secrets.API_URL_DEV }}
+          envkey_API_URL: ${{ secrets.API_URL }}
           envkey_VITE_SENTRY_DSN: ${{ vars.VITE_SENTRY_DSN }}
           envkey_VITE_SENTRY_ORG: ${{ vars.VITE_SENTRY_ORG }}
           envkey_VITE_SENTRY_PROJECT: ${{ vars.VITE_SENTRY_PROJECT }}
-          envkey_VITE_API_URL: ${{ inputs.environment == 'prod' && vars.VITE_API_URL_PROD || vars.VITE_API_URL_DEV }}
-          directory: "apps/web/"
-          file_name: ".env"
+          envkey_VITE_API_URL: ${{ vars.VITE_API_URL }}
+          directory: 'apps/web/'
+          file_name: '.env'
           fail_on_empty: false
           sort_keys: false
 
-      - name: Build application
+      - name: Build web application
         run: pnpm build --filter=@bt/web
 
-        
-      - name: Create server .env file
+      - name: Create web server .env file
         uses: SpicyPizza/create-envfile@v2
         with:
           envkey_SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          envkey_API_URL: ${{ inputs.environment == 'prod' && secrets.API_URL_PROD || secrets.API_URL_DEV }}
-          directory: "apps/web/.output/server"
-          file_name: ".env"
+          envkey_API_URL: ${{ secrets.API_URL }}
+          directory: 'apps/web/.output/server'
+          file_name: '.env'
           fail_on_empty: false
           sort_keys: false
 
-      - name: Remove .htaccess for production
-        if: ${{ inputs.environment == 'prod' }}
+      - name: Remove .htaccess if configured
+        if: ${{ vars.REMOVE_HTACCESS == 'true' }}
         run: rm -f apps/web/.output/public/.htaccess
 
-      - name: Zip build artifact
+      - name: Zip web artifact
         working-directory: apps/web/.output
         run: zip -r ../../../bedrock_tweaks_site.zip .
 
-      - name: Set deploy directory
-        id: deploy-config
-        run: |
-          if [ "${{ inputs.environment }}" = "prod" ]; then
-            echo "deploy_dir=/var/www/bedrock_tweaks" >> $GITHUB_OUTPUT
-          else
-            echo "deploy_dir=/var/www/bedrock_tweaks_dev" >> $GITHUB_OUTPUT
-          fi
+      # ── API ────────────────────────────────────────────────────────────────
 
-      - name: Upload artifact to server
+      - name: Build API
+        run: pnpm build --filter=@bt/api
+
+      - name: Zip API artifact
+        working-directory: apps/api
+        run: zip -r ../../bedrock_tweaks_api.zip .output package.json pnpm-lock.yaml
+
+      # ── Transfer ───────────────────────────────────────────────────────────
+
+      - name: Upload artifacts to server
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_ADDRESS }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22
-          source: "bedrock_tweaks_site.zip"
-          target: "/tmp"
+          source: 'bedrock_tweaks_site.zip,bedrock_tweaks_api.zip'
+          target: '/tmp'
 
-      - name: Deploy on server
+      # ── Deploy web ─────────────────────────────────────────────────────────
+
+      - name: Deploy web on server
         uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.SERVER_ADDRESS }}
@@ -103,11 +108,11 @@ jobs:
           port: 22
           script: |
             set -euo pipefail
-            DEPLOY_DIR="${{ steps.deploy-config.outputs.deploy_dir }}"
+            DEPLOY_DIR="${{ vars.WEB_DEPLOY_DIR }}"
 
             # Safety guard: ensure DEPLOY_DIR is not empty and is under /var/www
             if [ -z "$DEPLOY_DIR" ] || [ "${DEPLOY_DIR#/var/www}" = "$DEPLOY_DIR" ]; then
-              echo "Refusing to deploy to unsafe directory: '$DEPLOY_DIR'" >&2
+              echo "Refusing to deploy web to unsafe directory: '$DEPLOY_DIR'" >&2
               exit 1
             fi
 
@@ -116,14 +121,89 @@ jobs:
             unzip -o /tmp/bedrock_tweaks_site.zip -d "$DEPLOY_DIR"
             rm -f /tmp/bedrock_tweaks_site.zip
 
-      - name: Restart the service
-        uses: appleboy/ssh-action@master
+      # ── Deploy API ─────────────────────────────────────────────────────────
+
+      - name: Create API .env file
+        uses: SpicyPizza/create-envfile@v2
+        with:
+          envkey_NODE_PORT: ${{ vars.API_NODE_PORT }}
+          envkey_PRODUCTION: ${{ vars.API_PRODUCTION }}
+          envkey_STORAGE_URL: ${{ vars.API_STORAGE_URL }}
+          envkey_METADATA_AUTHORS: ${{ vars.API_METADATA_AUTHORS }}
+          envkey_CACHE_DIR: ${{ vars.API_CACHE_DIR }}
+          envkey_DOWNLOADS_DIR: ${{ vars.API_DOWNLOADS_DIR }}
+          envkey_CACHE_MAX_BYTES: ${{ vars.API_CACHE_MAX_BYTES }}
+          envkey_DOWNLOADS_MAX_BYTES: ${{ vars.API_DOWNLOADS_MAX_BYTES }}
+          directory: '.'
+          file_name: 'bedrock_tweaks_api.env'
+          fail_on_empty: false
+          sort_keys: false
+
+      - name: Upload API .env to server
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_ADDRESS }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          script: sudo systemctl restart bedrock_tweaks_web_${{ inputs.environment }}
+          port: 22
+          source: 'bedrock_tweaks_api.env'
+          target: '/tmp'
 
+      - name: Deploy API on server
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.SERVER_ADDRESS }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: 22
+          script: |
+            set -euo pipefail
+            DEPLOY_DIR="${{ vars.API_DEPLOY_DIR }}"
+            CACHE_DIR="${{ vars.API_CACHE_DIR }}"
+            DOWNLOADS_DIR="${{ vars.API_DOWNLOADS_DIR }}"
+
+            # Safety guard: ensure DEPLOY_DIR is not empty and is under /opt/bedrock_tweaks
+            if [ -z "$DEPLOY_DIR" ] || [ "${DEPLOY_DIR#/opt/bedrock_tweaks}" = "$DEPLOY_DIR" ]; then
+              echo "Refusing to deploy API to unsafe directory: '$DEPLOY_DIR'" >&2
+              exit 1
+            fi
+
+            mkdir -p "$DEPLOY_DIR"
+            rm -rf "$DEPLOY_DIR"/*
+            unzip -o /tmp/bedrock_tweaks_api.zip -d "$DEPLOY_DIR"
+            rm -f /tmp/bedrock_tweaks_api.zip
+
+            # Install production runtime dependencies
+            cd "$DEPLOY_DIR"
+            pnpm install --frozen-lockfile --prod
+
+            # Place runtime .env
+            cp /tmp/bedrock_tweaks_api.env "$DEPLOY_DIR/.env"
+            rm -f /tmp/bedrock_tweaks_api.env
+
+            # Ensure cache/download directories exist and are writable by the service user
+            mkdir -p "$CACHE_DIR" "$DOWNLOADS_DIR"
+            chown -R bedrock_tweaks:bedrock_tweaks "$CACHE_DIR" "$DOWNLOADS_DIR"
+
+      # ── Restart services ───────────────────────────────────────────────────
+
+      - name: Restart API service
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.SERVER_ADDRESS }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: 22
+          script: sudo systemctl restart ${{ vars.API_SERVICE_NAME }}
+
+      - name: Restart web service
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.SERVER_ADDRESS }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: 22
+          script: sudo systemctl restart ${{ vars.WEB_SERVICE_NAME }}
 
       - name: Output job status
         id: job-status
