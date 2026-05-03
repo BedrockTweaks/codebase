@@ -10,13 +10,23 @@ on:
         options:
           - dev
           - prod
+      target:
+        description: 'What to deploy'
+        required: true
+        type: choice
+        options:
+          - both
+          - web
+          - api
+        default: both
 
 env:
   NODE_VERSION: '20'
 
 jobs:
-  build-and-deploy:
-    name: Build and Deploy (${{ inputs.environment }})
+  deploy-web:
+    name: Build and Deploy Web (${{ inputs.environment }})
+    if: ${{ inputs.target == 'both' || inputs.target == 'web' }}
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
 
@@ -38,8 +48,6 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
-      # ── Web ────────────────────────────────────────────────────────────────
 
       - name: Create web build .env file
         uses: SpicyPizza/create-envfile@v2
@@ -74,30 +82,17 @@ jobs:
 
       - name: Zip web artifact
         working-directory: apps/web/.output
-        run: zip -r ../../../bedrock_tweaks_site.zip .
+        run: zip -r ../../../bedrock_tweaks_site_${{ github.run_id }}_${{ github.run_attempt }}.zip .
 
-      # ── API ────────────────────────────────────────────────────────────────
-
-      - name: Build API
-        run: pnpm build --filter=@bt/api
-
-      - name: Zip API artifact
-        working-directory: apps/api
-        run: zip -r ../../bedrock_tweaks_api.zip .output package.json pnpm-lock.yaml
-
-      # ── Transfer ───────────────────────────────────────────────────────────
-
-      - name: Upload artifacts to server
+      - name: Upload web artifact to server
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_ADDRESS }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22
-          source: 'bedrock_tweaks_site.zip,bedrock_tweaks_api.zip'
+          source: 'bedrock_tweaks_site_${{ github.run_id }}_${{ github.run_attempt }}.zip'
           target: '/tmp'
-
-      # ── Deploy web ─────────────────────────────────────────────────────────
 
       - name: Deploy web on server
         uses: appleboy/ssh-action@v1.2.2
@@ -118,10 +113,64 @@ jobs:
 
             mkdir -p "$DEPLOY_DIR"
             rm -rf "$DEPLOY_DIR"/*
-            unzip -o /tmp/bedrock_tweaks_site.zip -d "$DEPLOY_DIR"
-            rm -f /tmp/bedrock_tweaks_site.zip
+            unzip -o /tmp/bedrock_tweaks_site_${{ github.run_id }}_${{ github.run_attempt }}.zip -d "$DEPLOY_DIR"
+            rm -f /tmp/bedrock_tweaks_site_${{ github.run_id }}_${{ github.run_attempt }}.zip
 
-      # ── Deploy API ─────────────────────────────────────────────────────────
+      - name: Restart web service
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.SERVER_ADDRESS }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: 22
+          script: sudo systemctl restart ${{ vars.WEB_SERVICE_NAME }}
+
+      - name: Output job status
+        id: job-status
+        if: always()
+        run: echo "status=${{ job.status }}" >> $GITHUB_OUTPUT
+
+  deploy-api:
+    name: Build and Deploy API (${{ inputs.environment }})
+    if: ${{ inputs.target == 'both' || inputs.target == 'api' }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build API
+        run: pnpm build --filter=@bt/api
+
+      - name: Zip API artifact
+        working-directory: apps/api
+        run: zip -r ../../bedrock_tweaks_api_${{ github.run_id }}_${{ github.run_attempt }}.zip .output package.json pnpm-lock.yaml
+
+      - name: Upload API artifact to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_ADDRESS }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: 22
+          source: 'bedrock_tweaks_api_${{ github.run_id }}_${{ github.run_attempt }}.zip'
+          target: '/tmp'
 
       - name: Create API .env file
         uses: SpicyPizza/create-envfile@v2
@@ -135,7 +184,7 @@ jobs:
           envkey_CACHE_MAX_BYTES: ${{ vars.API_CACHE_MAX_BYTES }}
           envkey_DOWNLOADS_MAX_BYTES: ${{ vars.API_DOWNLOADS_MAX_BYTES }}
           directory: '.'
-          file_name: 'bedrock_tweaks_api.env'
+          file_name: 'bedrock_tweaks_api_${{ github.run_id }}_${{ github.run_attempt }}.env'
           fail_on_empty: false
           sort_keys: false
 
@@ -146,7 +195,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22
-          source: 'bedrock_tweaks_api.env'
+          source: 'bedrock_tweaks_api_${{ github.run_id }}_${{ github.run_attempt }}.env'
           target: '/tmp'
 
       - name: Deploy API on server
@@ -170,22 +219,20 @@ jobs:
 
             mkdir -p "$DEPLOY_DIR"
             rm -rf "$DEPLOY_DIR"/*
-            unzip -o /tmp/bedrock_tweaks_api.zip -d "$DEPLOY_DIR"
-            rm -f /tmp/bedrock_tweaks_api.zip
+            unzip -o /tmp/bedrock_tweaks_api_${{ github.run_id }}_${{ github.run_attempt }}.zip -d "$DEPLOY_DIR"
+            rm -f /tmp/bedrock_tweaks_api_${{ github.run_id }}_${{ github.run_attempt }}.zip
 
             # Install production runtime dependencies
             cd "$DEPLOY_DIR"
             pnpm install --frozen-lockfile --prod
 
             # Place runtime .env
-            cp /tmp/bedrock_tweaks_api.env "$DEPLOY_DIR/.env"
-            rm -f /tmp/bedrock_tweaks_api.env
+            cp /tmp/bedrock_tweaks_api_${{ github.run_id }}_${{ github.run_attempt }}.env "$DEPLOY_DIR/.env"
+            rm -f /tmp/bedrock_tweaks_api_${{ github.run_id }}_${{ github.run_attempt }}.env
 
             # Ensure cache/download directories exist and are writable by the service user
             mkdir -p "$CACHE_DIR" "$DOWNLOADS_DIR"
             chown -R bedrock_tweaks:bedrock_tweaks "$CACHE_DIR" "$DOWNLOADS_DIR"
-
-      # ── Restart services ───────────────────────────────────────────────────
 
       - name: Restart API service
         uses: appleboy/ssh-action@v1.2.2
@@ -195,15 +242,6 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22
           script: sudo systemctl restart ${{ vars.API_SERVICE_NAME }}
-
-      - name: Restart web service
-        uses: appleboy/ssh-action@v1.2.2
-        with:
-          host: ${{ secrets.SERVER_ADDRESS }}
-          username: ${{ secrets.SERVER_USER }}
-          password: ${{ secrets.SERVER_PASSWORD }}
-          port: 22
-          script: sudo systemctl restart ${{ vars.WEB_SERVICE_NAME }}
 
       - name: Output job status
         id: job-status

@@ -29,9 +29,12 @@ The source files for resource packs, addons, and crafting tweaks used in this pr
 ```
 ├── apps/
 │   ├── web/          # Main React web application
-│   └── api/          # Backend API service (closed source)
+│   └── api/          # Backend API service
 ├── packages/
+│   └── adsense/      # Google AdSense integration
+│   └── analytics/    # Google Analytics integration
 │   └── config/       # Shared configuration
+│   └── types/        # Shared TypeScript types and Zod schemas
 ├── turbo.json        # Turborepo pipeline configuration
 └── pnpm-workspace.yaml
 ```
