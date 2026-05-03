@@ -32,9 +32,6 @@ importers:
       archiver:
         specifier: ^7.0.1
         version: 7.0.1
-      dotenv:
-        specifier: ^16.6.1
-        version: 16.6.1
       fs-extra:
         specifier: ^11.3.4
         version: 11.3.4
