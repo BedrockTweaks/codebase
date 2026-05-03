@@ -12,6 +12,9 @@ export default defineConfig({
   clean: true,
   sourcemap: false,
   splitting: false,
+  banner: {
+    js: 'import { createRequire } from \'module\'; const require = createRequire(import.meta.url);',
+  },
   onSuccess: async (): Promise<void> => {
     fsExtra.copySync('assets', '.output/assets');
   },
