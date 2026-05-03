@@ -160,7 +160,7 @@ jobs:
 
       - name: Zip API artifact
         working-directory: apps/api
-        run: zip -r ../../bedrock_tweaks_api_${{ github.run_id }}_${{ github.run_attempt }}.zip .output package.json pnpm-lock.yaml
+        run: zip -r ../../bedrock_tweaks_api_${{ github.run_id }}_${{ github.run_attempt }}.zip .output
 
       - name: Upload API artifact to server
         uses: appleboy/scp-action@v0.1.7
@@ -221,10 +221,6 @@ jobs:
             rm -rf "$DEPLOY_DIR"/*
             unzip -o /tmp/bedrock_tweaks_api_${{ github.run_id }}_${{ github.run_attempt }}.zip -d "$DEPLOY_DIR"
             rm -f /tmp/bedrock_tweaks_api_${{ github.run_id }}_${{ github.run_attempt }}.zip
-
-            # Install production runtime dependencies
-            cd "$DEPLOY_DIR"
-            pnpm install --frozen-lockfile --prod
 
             # Place runtime .env
             cp /tmp/bedrock_tweaks_api_${{ github.run_id }}_${{ github.run_attempt }}.env "$DEPLOY_DIR/.env"
