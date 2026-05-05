@@ -49,8 +49,13 @@ export function SelectedPacks({ compatibleVersions, onDownload, onClose }: Selec
 
     onDownload.mutate(request, {
       onSuccess: (response) => {
-        // Trigger download using the URL
-        window.location.href = response.downloadUrl;
+        const a = document.createElement('a');
+
+        a.href = response.downloadUrl;
+        a.download = response.packName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
 
         toaster.success({
           title: 'Download Started',
