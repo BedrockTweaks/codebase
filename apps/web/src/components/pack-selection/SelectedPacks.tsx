@@ -52,7 +52,7 @@ export function SelectedPacks({ compatibleVersions, onDownload, onClose }: Selec
         const a = document.createElement('a');
 
         a.href = response.downloadUrl;
-        a.download = response.packName;
+        a.download = new URL(response.downloadUrl).pathname.split('/').pop() ?? response.packName;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
