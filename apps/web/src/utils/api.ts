@@ -4,7 +4,7 @@ import type { GeneratedPackResponse } from '@bt/types';
 export function getApiUrl(): string {
   if (typeof window === 'undefined') {
     // Server / SSR
-    return import.meta.env.PROD ? process.env.API_URL! : 'http://localhost:8000';
+    return process.env.API_URL!;
   }
 
   // Browser
