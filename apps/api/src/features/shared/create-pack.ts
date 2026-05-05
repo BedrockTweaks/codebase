@@ -45,7 +45,8 @@ export const handleCreatePack = async (
     const downloadId = generateDownloadId();
     const filename = `${createPackDto.name}.${extension}`;
     const outputPath = await prepareDownloadPath(downloadId, filename, config);
-    const downloadUrl = buildStaticDownloadUrl(c.req.url, section, downloadId, createPackDto.name);
+    const forwardedProto = c.req.header('x-forwarded-proto');
+    const downloadUrl = buildStaticDownloadUrl(c.req.url, section, downloadId, createPackDto.name, forwardedProto);
 
     await onFinalize(createPackDto, assembly.dirPath, outputPath, downloadUrl, config);
 

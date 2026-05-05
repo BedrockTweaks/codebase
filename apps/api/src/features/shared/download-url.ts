@@ -24,10 +24,12 @@ export const buildStaticDownloadUrl = (
   section: Section,
   cacheKey: string,
   packName: string,
+  forwardedProto?: string,
 ): string => {
   const url = new URL(requestUrl);
   const extension = DOWNLOAD_EXTENSION_BY_SECTION[section];
   const safeName = sanitizeFileNameSegment(packName);
+  const protocol = forwardedProto ? `${forwardedProto}:` : url.protocol;
 
-  return `${url.protocol}//${url.host}/download/${cacheKey}/${encodeURIComponent(safeName)}.${extension}`;
+  return `${protocol}//${url.host}/download/${cacheKey}/${encodeURIComponent(safeName)}.${extension}`;
 };
