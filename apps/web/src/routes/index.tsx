@@ -208,7 +208,7 @@ function getRandomImage(categories: Category[], section: Section): string {
     const randomPackIndex = Math.floor(Math.random() * selectedCategory.packs.length);
     const selectedPack: Pack = selectedCategory.packs[randomPackIndex];
 
-    return `${getApiUrl()}/static/${section}/files/${selectedCategory.id}/${selectedPack.id}/pack_icon.png`;
+    return `${getApiUrl(true)}/static/${section}/files/${selectedCategory.id}/${selectedPack.id}/pack_icon.png`;
   }
 
   return '';

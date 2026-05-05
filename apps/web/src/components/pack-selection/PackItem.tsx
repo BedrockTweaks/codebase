@@ -8,7 +8,7 @@ function getPackIconUrl(section: string, categoryId: string, packId: string, ext
   // Convert section format: 'resource-packs' -> 'resource_packs'
   const sectionPath = section.replace(/-/g, '_');
 
-  return `${getApiUrl()}/static/${sectionPath}/files/${categoryId}/${packId}/pack_icon.${extension}`;
+  return `${getApiUrl(true)}/static/${sectionPath}/files/${categoryId}/${packId}/pack_icon.${extension}`;
 }
 
 interface PackItemProps {

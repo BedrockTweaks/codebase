@@ -1,13 +1,13 @@
 import type { DownloadRequest, SectionResponse } from '@/models';
 import type { GeneratedPackResponse } from '@bt/types';
 
-export function getApiUrl(): string {
-  if (typeof window === 'undefined') {
+export function getApiUrl(publicOnly: boolean = false): string {
+  if (!publicOnly && typeof window === 'undefined') {
     // Server / SSR
     return process.env.API_URL!;
   }
 
-  // Browser
+  // Browser / public-facing
   return import.meta.env.VITE_API_URL!;
 }
 
