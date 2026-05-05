@@ -4,7 +4,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"dev": "node --watch --import tsx src/index.ts",
+		"dev": "node --watch --env-file=.env --import tsx src/index.ts",
 		"build": "tsup",
 		"start": "node .output/index.js",
 		"lint": "eslint . --max-warnings 0",
