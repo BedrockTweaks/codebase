@@ -10,6 +10,15 @@ import { getPacks } from './listing';
 
 type SelectedPacks = Record<string, string[]> & { combinations: string[] };
 
+interface ManifestOptions {
+  dependencies?: ManifestDependency[];
+}
+
+export interface ManifestDependency {
+  uuid: string;
+  version: number[];
+}
+
 const buildSelectedPacks = (createPackDto: CreatePackDto, combinations: Combination[]): SelectedPacks => {
   const allPackPaths = createPackDto.categories.flatMap(category =>
     category.packs.map(packId => ({ id: packId, path: `${category.id}/${packId}` })),
@@ -37,6 +46,7 @@ export const generateManifest = async (
   downloadUrl: string,
   section: Section,
   config: Config,
+  options?: ManifestOptions,
 ): Promise<string> => {
   const packs = await getPacks(section, config);
   const selectedPacks = buildSelectedPacks(createPackDto, packs.combinations);
@@ -45,11 +55,17 @@ export const generateManifest = async (
 
   let type: string;
   let description: string;
+  const name = createPackDto.name.replace('.mcpack', '').replace('.mcaddon', '');
 
   switch (section) {
     case 'resource_packs':
       type = 'resources';
       description = `Bedrock Tweaks §aResource Packs§r`;
+
+      break;
+    case 'addons':
+      type = 'data';
+      description = `Bedrock Tweaks §dAddons§r`;
 
       break;
     case 'crafting_tweaks':
@@ -70,14 +86,14 @@ export const generateManifest = async (
     selected_packs: selectedPacks,
   };
 
-  if (section === 'crafting_tweaks') {
+  if (section === 'addons' || section === 'crafting_tweaks') {
     metadata['product_type'] = 'addon';
   }
 
   const manifest = {
     format_version: 2,
     header: {
-      name: createPackDto.name.replace('.mcpack', ''),
+      name,
       description,
       uuid: uuidv4(),
       version: [1, 0, 0],
@@ -91,6 +107,7 @@ export const generateManifest = async (
       },
     ],
     metadata,
+    dependencies: options?.dependencies || [],
   };
 
   return JSON.stringify(manifest, null, '\t');
