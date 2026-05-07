@@ -160,7 +160,7 @@ jobs:
 
       - name: Zip API artifact
         working-directory: apps/api
-        run: zip -r ../../bedrock_tweaks_api_${{ github.run_id }}_${{ github.run_attempt }}.zip .output
+        run: zip -r ../../bedrock_tweaks_api_${{ github.run_id }}_${{ github.run_attempt }}.zip .output assets
 
       - name: Upload API artifact to server
         uses: appleboy/scp-action@v0.1.7
