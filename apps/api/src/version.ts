@@ -24,7 +24,10 @@ export async function fetchAppVersion(): Promise<string> {
   );
 
   if (!response.ok) {
-    throw new Error('Failed to fetch version');
+    console.warn(`Failed to fetch version from GitHub (status ${response.status}), using fallback version`);
+
+    // Temporal should be fixed once we are out of rate limits
+    return '5.2.4';
   }
 
   // @ts-expect-error - tag_name is guaranteed by GitHub API
