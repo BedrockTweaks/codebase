@@ -38,3 +38,4 @@ yarn-error.log*
 *.pem
 
 TODO
+server_config/
