@@ -6,7 +6,7 @@ const DOWNLOAD_EXTENSION_BY_SECTION: Record<Section, string> = {
   resource_packs: 'mcpack',
 };
 
-const sanitizeFileNameSegment = (value: string): string => {
+export const sanitizeFileNameSegment = (value: string): string => {
   const normalized = value.trim();
 
   if (!normalized) {

@@ -11,7 +11,7 @@ import {
   prepareDownloadPath,
   saveAssemblyCache,
 } from './cache';
-import { buildStaticDownloadUrl } from './download-url';
+import { buildStaticDownloadUrl, sanitizeFileNameSegment } from './download-url';
 import { getPacksPaths } from './generation';
 import type { GeneratedPackResult } from './responses';
 
@@ -43,7 +43,8 @@ export const handleCreatePack = async (
     }
 
     const downloadId = generateDownloadId();
-    const filename = `${createPackDto.name}.${extension}`;
+    const safeName = sanitizeFileNameSegment(createPackDto.name);
+    const filename = `${safeName}.${extension}`;
     const outputPath = await prepareDownloadPath(downloadId, filename, config);
     const forwardedProto = c.req.header('x-forwarded-proto');
     const downloadUrl = buildStaticDownloadUrl(c.req.url, section, downloadId, createPackDto.name, forwardedProto);
