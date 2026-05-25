@@ -90,7 +90,7 @@ export const generateManifest = async (
     metadata['product_type'] = 'addon';
   }
 
-  const manifest = {
+  const manifest: Record<string, unknown> = {
     format_version: 2,
     header: {
       name,
@@ -109,6 +109,10 @@ export const generateManifest = async (
     metadata,
     dependencies: options?.dependencies || [],
   };
+
+  if (section === 'resource_packs') {
+    manifest['capabilities'] = ['pbr'];
+  }
 
   return JSON.stringify(manifest, null, '\t');
 };
