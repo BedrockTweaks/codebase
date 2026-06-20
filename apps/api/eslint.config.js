@@ -1,3 +1,8 @@
 import baseConfig from '@bt/config/eslint';
 
-export default [...baseConfig];
+export default [
+  ...baseConfig,
+  {
+    ignores: ['**/.output/**'],
+  },
+];

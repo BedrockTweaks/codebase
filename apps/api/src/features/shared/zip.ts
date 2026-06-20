@@ -1,26 +1,6 @@
-import archiver, { type Archiver } from 'archiver';
+import { type Archiver } from 'archiver';
 import { createWriteStream } from 'node:fs';
 import { rename } from 'node:fs/promises';
-
-export const createZipFromAssembledDirectory = (assemblyDir: string): Archiver => {
-  const zip = archiver('zip');
-
-  zip.on('warning', (err) => {
-    if (err.code === 'ENOENT') {
-      console.warn(err);
-    } else {
-      throw err;
-    }
-  });
-
-  zip.on('error', (err) => {
-    throw err;
-  });
-
-  zip.directory(assemblyDir, false);
-
-  return zip;
-};
 
 export const finalizeZipToFile = (zip: Archiver, outputPath: string): Promise<void> => {
   const tmpPath = `${outputPath}.tmp`;

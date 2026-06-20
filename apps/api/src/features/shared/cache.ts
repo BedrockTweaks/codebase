@@ -27,7 +27,7 @@ const getDownloadsMaxBytes = (config: Config): number =>
   config.downloadsMaxBytes ?? 2 * 1024 * 1024 * 1024; // 2GB
 
 export const getAssembledPackPath = (assemblyKey: string, config: Config): string =>
-  join(getAssemblyCacheDir(config), assemblyKey);
+  join(getAssemblyCacheDir(config), `${assemblyKey}.zip`);
 
 export const generateDownloadId = (): string => randomUUID();
 
@@ -139,7 +139,7 @@ const removeAssemblyEntry = async (assemblyKey: string, config: Config): Promise
   const assemblyPath = getAssembledPackPath(assemblyKey, config);
   const metaPath = join(getAssemblyCacheDir(config), `${assemblyKey}.meta`);
 
-  await fs.rm(assemblyPath, { recursive: true, force: true }).catch(() => undefined);
+  await fs.unlink(assemblyPath).catch(() => undefined);
   await fs.unlink(metaPath).catch(() => undefined);
 };
 
@@ -148,17 +148,17 @@ export const getCachedAssembly = async (
   packsPaths: string[],
   section: Section,
   config: Config,
-): Promise<{ dirPath: string } | null> => {
+): Promise<{ zipPath: string } | null> => {
   const assemblyDir = getAssemblyCacheDir(config);
   const metaPath = join(assemblyDir, `${assemblyKey}.meta`);
-  const dirPath = getAssembledPackPath(assemblyKey, config);
+  const zipPath = getAssembledPackPath(assemblyKey, config);
 
   try {
     const metaContent = await fs.readFile(metaPath, 'utf-8');
     const parsed: unknown = JSON.parse(metaContent);
     const meta: AssemblyMeta = assemblyMetaSchema.parse(parsed);
 
-    await fs.access(dirPath);
+    await fs.access(zipPath);
 
     const stale = await isAssemblyStale(packsPaths, meta.createdAt, section, config);
 
@@ -175,7 +175,7 @@ export const getCachedAssembly = async (
 
     await fs.writeFile(metaPath, JSON.stringify(updatedMeta));
 
-    return { dirPath };
+    return { zipPath };
   } catch {
     return null;
   }
@@ -249,12 +249,12 @@ export const evictAssemblyCacheIfNeeded = async (config: Config): Promise<void> 
 const getAssemblyCacheSize = async (assemblyDir: string): Promise<number> => {
   try {
     const entries = await fs.readdir(assemblyDir, { withFileTypes: true });
-    const dirs = entries.filter(e => e.isDirectory());
+    const zipFiles = entries.filter(e => !e.isDirectory() && e.name.endsWith('.zip'));
 
     const sizes = await Promise.all(
-      dirs.map(async (dir): Promise<number> => {
+      zipFiles.map(async (file): Promise<number> => {
         try {
-          const stat = await fs.stat(join(assemblyDir, dir.name));
+          const stat = await fs.stat(join(assemblyDir, file.name));
 
           return stat.size;
         } catch {

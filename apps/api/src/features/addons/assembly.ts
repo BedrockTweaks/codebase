@@ -1,9 +1,11 @@
-import { readFile, readdir } from 'node:fs/promises';
+import AdmZip from 'adm-zip';
+import archiver from 'archiver';
+import { readFile, readdir, rename } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { AssemblePackCallback, FinalizePackCallback } from '../shared/assembly';
-import { copyDirectoryRecursive, pathExists } from '../shared/assembly';
+import { pathExists } from '../shared/assembly';
 import { generateManifest, type ManifestDependency } from '../shared/metadata';
-import { createZipFromAssembledDirectory, finalizeZipToFile } from '../shared/zip';
+import { finalizeZipToFile } from '../shared/zip';
 
 const DEFAULT_VERSION = [1, 0, 0] as const;
 
@@ -44,34 +46,24 @@ const extractDependencyFromManifest = (manifestContent: string): ManifestDepende
   }
 };
 
-const getAddonPackDependencies = async (assemblyDir: string): Promise<ManifestDependency[]> => {
-  const entries = await readdir(assemblyDir, { withFileTypes: true });
-  const behaviorPackDirs = entries
-    .filter(entry => entry.isDirectory() && entry.name.endsWith('_bp'))
-    .map(entry => entry.name)
-    .sort((a, b) => a.localeCompare(b));
+const getAddonPackDependencies = (zip: AdmZip): ManifestDependency[] => {
+  const bpManifestEntries = zip.getEntries()
+    .filter(e => !e.isDirectory && /^[^/]+_bp\/manifest\.json$/.test(e.entryName))
+    .sort((a, b) => a.entryName.localeCompare(b.entryName));
 
   const dependencies: ManifestDependency[] = [];
 
-  for (const behaviorPackDir of behaviorPackDirs) {
-    const manifestPath = join(assemblyDir, behaviorPackDir, 'manifest.json');
+  for (const entry of bpManifestEntries) {
+    const content = entry.getData().toString('utf8');
+    const dep = extractDependencyFromManifest(content);
 
-    if (!(await pathExists(manifestPath))) {
-      console.warn(`Addon pack manifest not found at ${manifestPath}. Skipping dependency entry.`);
-
-      continue;
-    }
-
-    const manifestContent = await readFile(manifestPath, 'utf8');
-    const dependency = extractDependencyFromManifest(manifestContent);
-
-    if (!dependency) {
-      console.warn(`Addon pack manifest at ${manifestPath} is invalid. Skipping dependency entry.`);
+    if (!dep) {
+      console.warn(`Addon pack manifest at ${entry.entryName} is invalid. Skipping dependency entry.`);
 
       continue;
     }
 
-    dependencies.push(dependency);
+    dependencies.push(dep);
   }
 
   return dependencies;
@@ -79,9 +71,12 @@ const getAddonPackDependencies = async (assemblyDir: string): Promise<ManifestDe
 
 export const assembleAddons: AssemblePackCallback = async (
   packsPaths,
-  assemblyDir,
+  assemblyZipPath,
   config,
 ) => {
+  const zip = archiver('zip');
+  const writtenDirs = new Set<string>();
+
   for (const packPath of packsPaths) {
     if (!packPath.startsWith('files/')) {
       continue;
@@ -108,31 +103,34 @@ export const assembleAddons: AssemblePackCallback = async (
         continue;
       }
 
-      const sourcePath = join(builtPackRootPath, entry.name);
-      const destinationPath = join(assemblyDir, entry.name);
-
-      if (await pathExists(destinationPath)) {
+      if (writtenDirs.has(entry.name)) {
         throw new Error(`Duplicate addon output folder ${entry.name} found while assembling addons.`);
       }
 
-      await copyDirectoryRecursive(sourcePath, destinationPath);
+      const sourcePath = join(builtPackRootPath, entry.name);
+
+      zip.directory(sourcePath, entry.name);
+      writtenDirs.add(entry.name);
     }
   }
 
-  if (!(await pathExists(assemblyDir))) {
+  if (writtenDirs.size === 0) {
     throw new Error('No addon outputs were found for the selected packs.');
   }
+
+  await finalizeZipToFile(zip, assemblyZipPath);
 };
 
 export const finalizeAddons: FinalizePackCallback = async (
   createPackDto,
-  assemblyDir,
+  assemblyZipPath,
   outputPath,
   downloadUrl,
   config,
 ) => {
   const addonPackFolderName = sanitizePackNameForFolder(createPackDto.name);
-  const dependencies = await getAddonPackDependencies(assemblyDir);
+  const zip = new AdmZip(assemblyZipPath);
+  const dependencies = getAddonPackDependencies(zip);
 
   if (dependencies.length === 0) {
     throw new Error('No addon pack dependencies were found in assembled output.');
@@ -145,11 +143,17 @@ export const finalizeAddons: FinalizePackCallback = async (
     config,
     { dependencies },
   );
-  const zip = createZipFromAssembledDirectory(assemblyDir);
+  const [packIconBuffer, creditsBuffer] = await Promise.all([
+    readFile('./assets/images/pack_icon.png'),
+    readFile('./assets/text/credits.txt'),
+  ]);
 
-  zip.append(manifest, { name: `${addonPackFolderName}/manifest.json` });
-  zip.file('./assets/images/pack_icon.png', { name: `${addonPackFolderName}/pack_icon.png` });
-  zip.file('./assets/text/credits.txt', { name: 'credits.txt' });
+  zip.addFile(`${addonPackFolderName}/manifest.json`, Buffer.from(manifest));
+  zip.addFile(`${addonPackFolderName}/pack_icon.png`, packIconBuffer);
+  zip.addFile('credits.txt', creditsBuffer);
 
-  await finalizeZipToFile(zip, outputPath);
+  const tmpPath = `${outputPath}.tmp`;
+
+  zip.writeZip(tmpPath);
+  await rename(tmpPath, outputPath);
 };

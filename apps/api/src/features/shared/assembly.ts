@@ -7,13 +7,13 @@ import { deepMerge } from './combiner';
 
 export type AssemblePackCallback = (
   packsPaths: string[],
-  assemblyDir: string,
+  assemblyZipPath: string,
   config: Config,
 ) => Promise<void>;
 
 export type FinalizePackCallback = (
   createPackDto: CreatePackDto,
-  assemblyDir: string,
+  assemblyZipPath: string,
   outputPath: string,
   downloadUrl: string,
   config: Config,

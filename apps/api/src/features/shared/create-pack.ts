@@ -34,12 +34,12 @@ export const handleCreatePack = async (
     let assembly = await getCachedAssembly(assemblyKey, packsPaths, section, config);
 
     if (!assembly) {
-      const assemblyDir = getAssembledPackPath(assemblyKey, config);
+      const assemblyZipPath = getAssembledPackPath(assemblyKey, config);
 
-      await onAssemble(packsPaths, assemblyDir, config);
+      await onAssemble(packsPaths, assemblyZipPath, config);
       await saveAssemblyCache(assemblyKey, packsPaths, config);
 
-      assembly = { dirPath: assemblyDir };
+      assembly = { zipPath: assemblyZipPath };
     }
 
     const downloadId = generateDownloadId();
@@ -49,7 +49,7 @@ export const handleCreatePack = async (
     const forwardedProto = c.req.header('x-forwarded-proto');
     const downloadUrl = buildStaticDownloadUrl(c.req.url, section, downloadId, createPackDto.name, forwardedProto);
 
-    await onFinalize(createPackDto, assembly.dirPath, outputPath, downloadUrl, config);
+    await onFinalize(createPackDto, assembly.zipPath, outputPath, downloadUrl, config);
 
     void evictDownloadsIfNeeded(config);
 
