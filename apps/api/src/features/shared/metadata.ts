@@ -3,12 +3,45 @@ import type { Config } from '@/config';
 import type {
   Combination,
   CreatePackDto,
+  PacksJSON,
   Section,
 } from '@bt/types';
 import { fetchAppVersion } from '@/version';
 import { getPacks } from './listing';
 
 type SelectedPacks = Record<string, string[]> & { combinations: string[] };
+
+const buildPackListDescription = (
+  createPackDto: CreatePackDto,
+  packsJson: PacksJSON,
+  selectedCombinations: string[],
+): string => {
+  const lines: string[] = [];
+
+  for (const categorySelection of createPackDto.categories) {
+    if (categorySelection.packs.length === 0) {
+      continue;
+    }
+
+    const categoryDef = packsJson.categories.find(c => c.id === categorySelection.id);
+    const categoryName = categoryDef?.name ?? categorySelection.id;
+
+    lines.push(`§6${categoryName}§r`);
+
+    for (const packId of categorySelection.packs) {
+      const packDef = categoryDef?.packs.find(p => p.id === packId);
+      const packName = packDef?.name ?? packId;
+
+      lines.push(`  ${packName}`);
+    }
+  }
+
+  if (selectedCombinations.length > 0) {
+    lines.push(`§7Combinations: ${selectedCombinations.join(', ')}§r`);
+  }
+
+  return lines.length > 0 ? `\n${lines.join('\n')}` : '';
+};
 
 interface ManifestOptions {
   dependencies?: ManifestDependency[];
@@ -76,6 +109,8 @@ export const generateManifest = async (
     default:
       throw new Error(`Manifest generation not supported for section: ${section}`);
   }
+
+  description += buildPackListDescription(createPackDto, packs, selectedPacks.combinations);
 
   const metadata: Record<string, unknown> = {
     authors,
