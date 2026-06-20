@@ -2,7 +2,7 @@ import AdmZip from 'adm-zip';
 import archiver from 'archiver';
 import { createReadStream } from 'node:fs';
 import { readFile, readdir, rename, stat } from 'node:fs/promises';
-import { basename, join, relative } from 'node:path';
+import { basename, join, normalize, relative } from 'node:path';
 import type { AssemblePackCallback, FinalizePackCallback } from '../shared/assembly';
 import { deepMergeJson, mergeLang, pathExists, SKIP_FILES } from '../shared/assembly';
 import { getPacks } from '../shared/listing';
@@ -33,7 +33,7 @@ export const assembleCraftingTweaks: AssemblePackCallback = async (
         if (
           writtenFiles.has(relativePath)
           || SKIP_FILES.includes(basename(relativePath))
-          || deepMergeFiles.some(file => file.filepath === relativePath)
+          || deepMergeFiles.some(file => normalize(file.filepath) === relativePath)
         ) {
           continue;
         }
@@ -60,14 +60,14 @@ export const assembleCraftingTweaks: AssemblePackCallback = async (
       const mergedJson = deepMergeJson(file.filepath, packsPaths, config.storageUrl, 'crafting_tweaks');
 
       if (Object.keys(mergedJson).length > 0) {
-        zip.append(Buffer.from(JSON.stringify(mergedJson)), { name: file.filepath });
+        zip.append(Buffer.from(JSON.stringify(mergedJson)), { name: normalize(file.filepath) });
         hasContent = true;
       }
     } else if (file.filepath.endsWith('.lang')) {
       const lang = mergeLang(file.filepath, packsPaths, config.storageUrl, 'crafting_tweaks');
 
       if (lang.length) {
-        zip.append(Buffer.from(lang), { name: file.filepath });
+        zip.append(Buffer.from(lang), { name: normalize(file.filepath) });
         hasContent = true;
       }
     }
