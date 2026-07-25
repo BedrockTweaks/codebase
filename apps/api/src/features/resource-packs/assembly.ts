@@ -1,13 +1,13 @@
 import AdmZip from 'adm-zip';
 import archiver from 'archiver';
 import { createReadStream } from 'node:fs';
-import { readFile, readdir, rename, stat } from 'node:fs/promises';
-import { basename, join, normalize, relative } from 'node:path';
+import { readFile, readdir, stat } from 'node:fs/promises';
+import { basename, join, relative } from 'node:path';
 import type { AssemblePackCallback, FinalizePackCallback } from '../shared/assembly';
-import { deepMergeJson, mergeLang, pathExists, SKIP_FILES } from '../shared/assembly';
+import { deepMergeJson, mergeLang, pathExists, SKIP_FILES, toZipEntryName } from '../shared/assembly';
 import { getPacks } from '../shared/listing';
 import { generateManifest } from '../shared/metadata';
-import { finalizeZipToFile } from '../shared/zip';
+import { finalizeZipToFile, writeZipToFile } from '../shared/zip';
 
 export const assembleResourcePacks: AssemblePackCallback = async (
   packsPaths,
@@ -17,6 +17,7 @@ export const assembleResourcePacks: AssemblePackCallback = async (
   const { deepMergeFiles } = await getPacks('resource_packs', config);
   const zip = archiver('zip');
   const writtenFiles = new Set<string>();
+  const deepMergedEntryNames = new Set(deepMergeFiles.map(file => toZipEntryName(file.filepath)));
   let hasContent = false;
 
   const addDirectoryToZip = async (dirPath: string, basePath: string): Promise<void> => {
@@ -24,7 +25,7 @@ export const assembleResourcePacks: AssemblePackCallback = async (
 
     for (const item of items) {
       const fullPath = join(dirPath, item);
-      const relativePath = relative(basePath, fullPath);
+      const relativePath = toZipEntryName(relative(basePath, fullPath));
       const stats = await stat(fullPath);
 
       if (stats.isDirectory()) {
@@ -33,7 +34,7 @@ export const assembleResourcePacks: AssemblePackCallback = async (
         if (
           writtenFiles.has(relativePath)
           || SKIP_FILES.includes(basename(relativePath))
-          || deepMergeFiles.some(file => normalize(file.filepath) === relativePath)
+          || deepMergedEntryNames.has(relativePath)
         ) {
           continue;
         }
@@ -60,14 +61,14 @@ export const assembleResourcePacks: AssemblePackCallback = async (
       const mergedJson = deepMergeJson(file.filepath, packsPaths, config.storageUrl, 'resource_packs');
 
       if (Object.keys(mergedJson).length > 0) {
-        zip.append(Buffer.from(JSON.stringify(mergedJson)), { name: normalize(file.filepath) });
+        zip.append(Buffer.from(JSON.stringify(mergedJson)), { name: toZipEntryName(file.filepath) });
         hasContent = true;
       }
     } else if (file.filepath.endsWith('.lang')) {
       const lang = mergeLang(file.filepath, packsPaths, config.storageUrl, 'resource_packs');
 
       if (lang.length) {
-        zip.append(Buffer.from(lang), { name: normalize(file.filepath) });
+        zip.append(Buffer.from(lang), { name: toZipEntryName(file.filepath) });
         hasContent = true;
       }
     }
@@ -98,8 +99,5 @@ export const finalizeResourcePacks: FinalizePackCallback = async (
   zip.addFile('pack_icon.png', packIconBuffer);
   zip.addFile('credits.txt', creditsBuffer);
 
-  const tmpPath = `${outputPath}.tmp`;
-
-  zip.writeZip(tmpPath);
-  await rename(tmpPath, outputPath);
+  await writeZipToFile(zip, outputPath);
 };

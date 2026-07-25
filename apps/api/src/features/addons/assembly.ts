@@ -1,11 +1,11 @@
 import AdmZip from 'adm-zip';
 import archiver from 'archiver';
-import { readFile, readdir, rename } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { AssemblePackCallback, FinalizePackCallback } from '../shared/assembly';
 import { pathExists } from '../shared/assembly';
 import { generateManifest, type ManifestDependency } from '../shared/metadata';
-import { finalizeZipToFile } from '../shared/zip';
+import { finalizeZipToFile, writeZipToFile } from '../shared/zip';
 
 const DEFAULT_VERSION = [1, 0, 0] as const;
 
@@ -152,8 +152,5 @@ export const finalizeAddons: FinalizePackCallback = async (
   zip.addFile(`${addonPackFolderName}/pack_icon.png`, packIconBuffer);
   zip.addFile('credits.txt', creditsBuffer);
 
-  const tmpPath = `${outputPath}.tmp`;
-
-  zip.writeZip(tmpPath);
-  await rename(tmpPath, outputPath);
+  await writeZipToFile(zip, outputPath);
 };

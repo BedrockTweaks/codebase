@@ -3,10 +3,12 @@ import type {
   Category,
   Combination,
   CreatePackDto,
+  Pack,
   PacksJSON,
   Section,
 } from '@bt/types';
 import { getPacks } from './listing';
+import { InvalidSelectionError } from './selection-error';
 
 export const getRealPaths = (categories: Category[], combinations: Combination[]): string[] => {
   const finalPaths: string[] = [];
@@ -59,25 +61,58 @@ export const getPacksPaths = async (
   return getRealPaths(categories, allCombinations);
 };
 
+/**
+ * Resolves the selection against packs.json, collecting every problem rather
+ * than failing on the first, so one response tells the client everything that
+ * drifted after a packs.json update.
+ */
 const convertToCategories = async (
   createPackDto: CreatePackDto,
   section: Section,
   config: Config,
 ): Promise<Category[]> => {
   const packsJSON: PacksJSON = await getPacks(section, config);
+  const unknownCategories: string[] = [];
+  const unknownPacks: string[] = [];
+  const disabledPacks: string[] = [];
+  const categories: Category[] = [];
 
-  return createPackDto.categories.map((categoryDto) => {
+  for (const categoryDto of createPackDto.categories) {
     const fullCategory = packsJSON.categories.find(category => category.id === categoryDto.id);
 
     if (!fullCategory) {
-      throw new Error(`Category with id ${categoryDto.id} not found.`);
+      unknownCategories.push(categoryDto.id);
+
+      continue;
     }
 
-    const filteredPacks = fullCategory.packs.filter(pack => categoryDto.packs.includes(pack.id));
+    const packs: Pack[] = [];
 
-    return {
-      ...fullCategory,
-      packs: filteredPacks,
-    };
-  });
+    for (const packId of categoryDto.packs) {
+      const pack = fullCategory.packs.find(candidate => candidate.id === packId);
+
+      if (!pack) {
+        unknownPacks.push(`${categoryDto.id}/${packId}`);
+      } else if (pack.disabled) {
+        disabledPacks.push(`${categoryDto.id}/${packId}`);
+      } else {
+        packs.push(pack);
+      }
+    }
+
+    categories.push({ ...fullCategory, packs });
+  }
+
+  const requestedPacks = createPackDto.categories.reduce((total, category) => total + category.packs.length, 0);
+
+  if (requestedPacks === 0 || unknownCategories.length > 0 || unknownPacks.length > 0 || disabledPacks.length > 0) {
+    throw new InvalidSelectionError({
+      unknownCategories,
+      unknownPacks,
+      disabledPacks,
+      empty: requestedPacks === 0,
+    });
+  }
+
+  return categories;
 };

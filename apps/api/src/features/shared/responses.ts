@@ -9,4 +9,8 @@ export type GeneratedPackErrorBody = {
 };
 
 export type GeneratedPackErrorResponse = TypedResponse<GeneratedPackErrorBody, 500, 'json'>;
-export type GeneratedPackResult = TypedResponse<GeneratedPackResponse, 200, 'json'> | GeneratedPackErrorResponse;
+export type InvalidSelectionResponse = TypedResponse<GeneratedPackErrorBody, 400, 'json'>;
+export type GeneratedPackResult
+  = TypedResponse<GeneratedPackResponse, 200, 'json'>
+    | InvalidSelectionResponse
+    | GeneratedPackErrorResponse;

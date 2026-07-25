@@ -39,6 +39,17 @@ export const createAddonRoute = createRoute({
         },
       },
     },
+    400: {
+      description: 'The selection references categories or packs that are not available',
+      content: {
+        'application/json': {
+          schema: z.object({
+            message: z.string(),
+            statusCode: z.number(),
+          }),
+        },
+      },
+    },
     500: {
       description: 'Internal server error',
       content: {

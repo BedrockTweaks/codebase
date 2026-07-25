@@ -21,6 +21,18 @@ export type FinalizePackCallback = (
 
 export const SKIP_FILES = ['pack_icon.png', 'pack_icon.gif'];
 
+/**
+ * Converts a file path into the name it gets inside the generated zip.
+ *
+ * Paths reach us in three shapes: `packs.json` declares deep merge files with a
+ * leading slash (`/entity/zombie.entity.json`), `relative()` uses the platform
+ * separator, and archiver strips leading slashes from entry names. Normalising
+ * all of them here keeps the deep merge skip check and the merged entry name
+ * pointing at the same file, instead of emitting both.
+ */
+export const toZipEntryName = (filePath: string): string =>
+  filePath.split(/[/\\]+/).filter(Boolean).join('/');
+
 export const pathExists = async (path: string): Promise<boolean> => {
   try {
     await access(path, constants.F_OK);
@@ -31,11 +43,20 @@ export const pathExists = async (path: string): Promise<boolean> => {
   }
 };
 
+/**
+ * `packsPaths` is ordered by precedence, highest first: combinations, then packs
+ * by descending priority. Plain files honour that through first-wins copying,
+ * but `deepMerge` lets the target override the source, so merging in the given
+ * order would let the lowest priority pack win. Merging in reverse applies the
+ * highest precedence pack last, keeping both paths consistent.
+ */
+const byAscendingPrecedence = (packsPaths: string[]): string[] => [...packsPaths].reverse();
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const deepMergeJson = (filePath: string, packsPaths: string[], storageUrl: string, section: string): any => {
   let mergedJson = {};
 
-  for (const packPath of packsPaths) {
+  for (const packPath of byAscendingPrecedence(packsPaths)) {
     const fullFilePath = join(storageUrl, section, packPath, filePath);
 
     if (existsSync(fullFilePath)) {
@@ -56,7 +77,9 @@ export const deepMergeJson = (filePath: string, packsPaths: string[], storageUrl
 export const mergeLang = (filePath: string, packsPaths: string[], storageUrl: string, section: string): string => {
   let mergedLang = '';
 
-  for (const packPath of packsPaths) {
+  // Bedrock keeps the last definition of a duplicated key, so the highest
+  // precedence pack has to be appended last.
+  for (const packPath of byAscendingPrecedence(packsPaths)) {
     const fullFilePath = join(storageUrl, section, packPath, filePath);
 
     if (existsSync(fullFilePath)) {

@@ -39,6 +39,28 @@ export const prepareDownloadPath = async (downloadId: string, filename: string, 
   return join(downloadDir, filename);
 };
 
+/**
+ * Assemblies are written to a temporary file and renamed into place, so a crash
+ * mid-write leaves an orphan behind. They are never counted by the size check
+ * and never evicted, so clear them on boot.
+ */
+const removeOrphanedTempFiles = async (assemblyDir: string): Promise<void> => {
+  try {
+    const entries = await fs.readdir(assemblyDir, { withFileTypes: true });
+    const tempFiles = entries.filter(entry => !entry.isDirectory() && entry.name.endsWith('.tmp'));
+
+    await Promise.all(
+      tempFiles.map(file => fs.unlink(join(assemblyDir, file.name)).catch(() => undefined)),
+    );
+
+    if (tempFiles.length > 0) {
+      console.info(`Removed ${tempFiles.length} orphaned assembly temp file(s)`);
+    }
+  } catch (error) {
+    console.error('Failed to clean orphaned assembly temp files:', error);
+  }
+};
+
 export const initCacheDir = async (config: Config): Promise<void> => {
   const rootDir = getCacheDir(config);
   const assemblyDir = getAssemblyCacheDir(config);
@@ -51,6 +73,8 @@ export const initCacheDir = async (config: Config): Promise<void> => {
       fs.mkdir(downloadsDir, { recursive: true }),
     ]);
 
+    await removeOrphanedTempFiles(assemblyDir);
+
     console.info('Cache directories initialized:', { rootDir, assemblyDir, downloadsDir });
   } catch (error) {
     console.error('Failed to initialize cache directories:', error);
@@ -60,23 +84,20 @@ export const initCacheDir = async (config: Config): Promise<void> => {
 };
 
 export const computeAssemblyCacheKey = (section: Section, createPackDto: CreatePackDto): string => {
-  const hash = createHash('sha256');
+  // Serialising the whole selection keeps the ids delimited. Hashing them as
+  // bare concatenated strings let different selections collide onto one key,
+  // which served the wrong zip (`ab` + `c` hashed the same as `a` + `bc`).
+  const selection = {
+    section,
+    categories: [...createPackDto.categories]
+      .sort((a, b) => a.id.localeCompare(b.id))
+      .map(category => ({
+        id: category.id,
+        packs: [...category.packs].sort(),
+      })),
+  };
 
-  hash.update(section);
-
-  const sortedCategories = [...createPackDto.categories].sort((a, b) =>
-    a.id.localeCompare(b.id),
-  );
-
-  for (const category of sortedCategories) {
-    hash.update(category.id);
-
-    for (const packId of [...category.packs].sort()) {
-      hash.update(packId);
-    }
-  }
-
-  return hash.digest('hex');
+  return createHash('sha256').update(JSON.stringify(selection)).digest('hex');
 };
 
 const getMaxMtimeMs = async (dirPath: string): Promise<number> => {
@@ -122,6 +143,16 @@ const isAssemblyStale = async (
   config: Config,
 ): Promise<boolean> => {
   const createdAtMs = new Date(createdAt).getTime();
+
+  // packs.json drives priorities and combinations, so editing it changes the
+  // assembled output even when no pack file was touched.
+  const packsJSONStat = await fs
+    .stat(join(config.storageUrl, section, 'packs.json'))
+    .catch(() => null);
+
+  if (packsJSONStat && packsJSONStat.mtimeMs > createdAtMs) {
+    return true;
+  }
 
   for (const packPath of packsPaths) {
     const fullPath = join(config.storageUrl, section, packPath);
@@ -179,6 +210,32 @@ export const getCachedAssembly = async (
   } catch {
     return null;
   }
+};
+
+const inFlightAssemblies = new Map<string, Promise<void>>();
+
+/**
+ * Runs one assembly per cache key at a time. Without it, concurrent requests for
+ * the same selection each assemble the same entry, wasting the work and racing
+ * on the cache entry they all write.
+ */
+export const runExclusiveAssembly = async (
+  assemblyKey: string,
+  assemble: () => Promise<void>,
+): Promise<void> => {
+  const running = inFlightAssemblies.get(assemblyKey);
+
+  if (running) {
+    return running;
+  }
+
+  const pending = assemble().finally(() => {
+    inFlightAssemblies.delete(assemblyKey);
+  });
+
+  inFlightAssemblies.set(assemblyKey, pending);
+
+  return pending;
 };
 
 export const saveAssemblyCache = async (
