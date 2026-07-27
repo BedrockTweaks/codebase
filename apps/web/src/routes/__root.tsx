@@ -23,6 +23,9 @@ interface MyRouterContext {
   queryClient: QueryClient;
 }
 
+/** Crawlers reject relative og:image/twitter:image, so social cards need an absolute origin. */
+const SITE_URL = 'https://bedrocktweaks.net';
+
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   head: () => ({
     meta: [
@@ -58,11 +61,11 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       },
       {
         property: 'og:image',
-        content: '/assets/images/banner.png',
+        content: `${SITE_URL}/assets/images/banner.png`,
       },
       {
         property: 'og:url',
-        content: 'https://bedrocktweaks.net',
+        content: SITE_URL,
       },
       {
         property: 'og:type',
@@ -82,14 +85,23 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       },
       {
         name: 'twitter:url',
-        content: 'https://bedrocktweaks.net',
+        content: SITE_URL,
       },
       {
         name: 'twitter:image',
-        content: '/assets/images/banner.png',
+        content: `${SITE_URL}/assets/images/banner.png`,
       },
     ],
     links: [
+      {
+        // The @font-face lives in appCss, so the font is only discovered after the
+        // stylesheet has been fetched and parsed. Preloading starts it in parallel.
+        rel: 'preload',
+        as: 'font',
+        type: 'font/woff2',
+        href: '/fonts/Urbanist/Urbanist-VariableFont_wght.woff2',
+        crossOrigin: 'anonymous',
+      },
       {
         rel: 'icon',
         type: 'image/x-icon',

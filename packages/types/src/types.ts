@@ -6,6 +6,7 @@ import type {
   createPackSchema,
   deepMergeFileSchema,
   generatedPackResponseSchema,
+  iconExtensionSchema,
   messageSchema,
   packSchema,
   packsJSONSchema,
@@ -16,6 +17,7 @@ import type {
 export type Section = z.infer<typeof sectionSchema>;
 export type Severity = z.infer<typeof severitySchema>;
 export type Message = z.infer<typeof messageSchema>;
+export type IconExtension = z.infer<typeof iconExtensionSchema>;
 export type Pack = z.infer<typeof packSchema>;
 export type Category = z.infer<typeof categorySchema>;
 export type Combination = z.infer<typeof combinationSchema>;

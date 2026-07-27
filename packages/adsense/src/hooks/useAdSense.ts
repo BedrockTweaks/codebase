@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback } from 'react';
 import { useAdSenseContext } from '../contexts/AdSenseContext';
 
 declare global {
@@ -18,65 +18,15 @@ interface UseAdSense {
 }
 
 /**
- * Hook to manage Google AdSense script loading.
- * Handles client-side only execution to avoid SSR hydration issues.
+ * Reads AdSense state from the provider, which owns the script tag, and returns a
+ * stable `pushAds`. Stability matters: `pushAds` sits in effect dependency arrays, and
+ * a new identity every render re-fired the push on every render.
  */
 export function useAdSense(): UseAdSense {
-  const { clientId } = useAdSenseContext();
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
+  const { clientId, isLoaded } = useAdSenseContext();
 
-  // Ensure we only run on client side
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!isMounted) {
-      return;
-    }
-
-    const scriptId = 'bt-adsbygoogle-script';
-
-    // Check if script already exists
-    const existingScript = document.getElementById(scriptId);
-
-    if (existingScript) {
-      setIsLoaded(true);
-
-      return;
-    }
-
-    // Create and append the script
-    const script = document.createElement('script');
-
-    script.id = scriptId;
-    script.async = true;
-    script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${clientId}`;
-    script.crossOrigin = 'anonymous';
-
-    script.onload = (): void => {
-      setIsLoaded(true);
-    };
-
-    script.onerror = (): void => {
-      console.error('Failed to load AdSense script');
-    };
-
-    document.head.appendChild(script);
-
-    return (): void => {
-      // Cleanup: remove script if component unmounts
-      const scriptToRemove = document.getElementById(scriptId);
-
-      if (scriptToRemove) {
-        scriptToRemove.remove();
-      }
-    };
-  }, [clientId, isMounted]);
-
-  const pushAds = (options?: { auto: boolean }): void => {
-    if (!isMounted || !isLoaded) {
+  const pushAds = useCallback((options?: { auto: boolean }): void => {
+    if (!isLoaded) {
       return;
     }
 
@@ -99,9 +49,9 @@ export function useAdSense(): UseAdSense {
         w.adsbygoogle.push?.({});
       }
     } catch (error) {
-      console.error('Error pushing auto ads:', error);
+      console.error('Error pushing ads:', error);
     }
-  };
+  }, [clientId, isLoaded]);
 
   return { isLoaded, pushAds };
 }

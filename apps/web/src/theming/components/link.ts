@@ -16,7 +16,7 @@ export const linkRecipe = defineRecipe({
         },
       },
       link: {
-        color: 'primary.400',
+        color: 'primary.300',
         _hover: {
           textDecoration: 'underline',
         },

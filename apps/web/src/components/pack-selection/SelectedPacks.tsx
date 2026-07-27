@@ -186,13 +186,19 @@ export function SelectedPacks({ compatibleVersions, onDownload, onClose }: Selec
         width={'full'}
       >
         <a href={`https://bisecthosting.com/drav_dev?r=${generatedPackName.prefix}`}>
-          <Image
-            as={'img'}
-            src={'https://www.bisecthosting.com/partners/custom-banners/36ed4925-a513-4942-a5d0-cfbf68400d8a.webp'}
-            alt={'BisectHosting'}
-            width={'full'}
-            borderRadius={'md'}
-          />
+          {/* asChild so the intrinsic 1026x630 lands on the <img> as real width/height
+              attributes: that is what lets the browser reserve the box before the banner
+              loads. w=full + h=auto is the matching half of the recipe — without it the
+              height attribute would be applied as a presentational hint and squash it. */}
+          <Image asChild w={'full'} h={'auto'} borderRadius={'md'}>
+            <img
+              src={'https://www.bisecthosting.com/partners/custom-banners/36ed4925-a513-4942-a5d0-cfbf68400d8a.webp'}
+              alt={'BisectHosting'}
+              width={1026}
+              height={630}
+              loading={'eager'}
+            />
+          </Image>
         </a>
       </Link>
     </Box>

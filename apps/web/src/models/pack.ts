@@ -8,4 +8,6 @@ export interface Pack {
   version: string;
   incompatibilities: string[];
   disabled?: boolean;
+  /** Resolved server-side from disk; absent when the pack ships no icon. */
+  iconExtension?: 'png' | 'gif';
 }

@@ -58,7 +58,7 @@ export default function Footer(): JSX.Element {
         </Text>
 
         <Link asChild variant={'nav'} target={'_blank'} rel={'noopener noreferrer'}>
-          <a href={'/discord'}>
+          <a href={'/discord'} aria-label={'Join the Discord'}>
             <FaDiscord size={20} />
           </a>
         </Link>

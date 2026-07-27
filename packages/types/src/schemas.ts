@@ -9,6 +9,8 @@ export const messageSchema = z.object({
   severity: severitySchema,
 });
 
+export const iconExtensionSchema = z.enum(['png', 'gif']);
+
 export const packSchema = z.object({
   id: z.string(),
   name: z.string().optional(),
@@ -18,6 +20,12 @@ export const packSchema = z.object({
   incompatibilities: z.array(z.string()).optional(),
   priority: z.number().optional(),
   disabled: z.boolean().optional(),
+  /**
+   * Resolved by the API from disk, not authored in packs.json. Absent when the pack
+   * has no icon at all. Lets the client request the right URL once instead of asking
+   * for `.png` and falling back to `.gif` on a 404.
+   */
+  iconExtension: iconExtensionSchema.optional(),
 });
 
 export const categorySchema = z.object({

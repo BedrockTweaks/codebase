@@ -1,4 +1,4 @@
-import { JSX, useEffect, useState } from 'react';
+import { JSX, useEffect, useRef, useState } from 'react';
 import { useAdSenseContext } from '../contexts/AdSenseContext';
 import { useAdSense } from '../hooks/useAdSense';
 
@@ -31,6 +31,7 @@ export function AdSense({
   const { clientId } = useAdSenseContext();
   const { isLoaded, pushAds } = useAdSense();
   const [isMounted, setIsMounted] = useState(false);
+  const insRef = useRef<HTMLModElement>(null);
 
   // Ensure client-side only rendering
   useEffect(() => {
@@ -43,11 +44,14 @@ export function AdSense({
       return;
     }
 
-    try {
-      pushAds();
-    } catch (error) {
-      console.error('Error initializing ad:', error);
+    // AdSense stamps data-adsbygoogle-status on a slot once it claims it, and logs
+    // "All 'ins' elements ... already have ads in them" if the same slot is pushed
+    // twice. A re-mount gets a fresh <ins>, so this only suppresses the redundant push.
+    if (insRef.current?.dataset['adsbygoogleStatus']) {
+      return;
     }
+
+    pushAds();
   }, [isLoaded, isMounted, pushAds]);
 
   // Don't render during SSR
@@ -58,6 +62,7 @@ export function AdSense({
   return (
     <div style={{ width: '100%', height: '100%' }}>
       <ins
+        ref={insRef}
         className={'adsbygoogle'}
         style={style}
         data-ad-client={clientId}
