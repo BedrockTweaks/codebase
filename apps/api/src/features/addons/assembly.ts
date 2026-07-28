@@ -1,5 +1,5 @@
 import AdmZip from 'adm-zip';
-import archiver from 'archiver';
+import { ZipArchive } from 'archiver';
 import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { AssemblePackCallback, FinalizePackCallback } from '../shared/assembly';
@@ -74,7 +74,7 @@ export const assembleAddons: AssemblePackCallback = async (
   assemblyZipPath,
   config,
 ) => {
-  const zip = archiver('zip');
+  const zip = new ZipArchive();
   const writtenDirs = new Set<string>();
 
   for (const packPath of packsPaths) {

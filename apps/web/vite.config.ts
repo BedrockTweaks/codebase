@@ -1,7 +1,8 @@
+import babel from '@rolldown/plugin-babel';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 import { devtools } from '@tanstack/devtools-vite';
 import { tanstackStart } from '@tanstack/react-start/plugin/vite';
-import viteReact from '@vitejs/plugin-react';
+import viteReact, { reactCompilerPreset } from '@vitejs/plugin-react';
 import { nitro } from 'nitro/vite';
 import { fileURLToPath, URL } from 'url';
 import { defineConfig, loadEnv } from 'vite';
@@ -31,10 +32,9 @@ const config = defineConfig(({ mode }) => {
           entry: './src/server.ts',
         },
       }),
-      viteReact({
-        babel: {
-          plugins: ['babel-plugin-react-compiler'],
-        },
+      viteReact(),
+      babel({
+        presets: [reactCompilerPreset()],
       }),
       sentryVitePlugin({
         org: env.VITE_SENTRY_ORG,

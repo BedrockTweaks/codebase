@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 const configSchema = z.object({
   nodePort: z.coerce.number().default(8000),
-  production: z.string().transform(val => val === 'true').default('false'),
+  production: z.string().default('false').transform(val => val === 'true'),
   storageUrl: z.string().min(1),
   metadataAuthors: z.string().min(1),
   cacheDir: z.string().optional(),

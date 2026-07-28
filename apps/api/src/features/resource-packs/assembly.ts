@@ -1,5 +1,5 @@
 import AdmZip from 'adm-zip';
-import archiver from 'archiver';
+import { ZipArchive } from 'archiver';
 import { createReadStream } from 'node:fs';
 import { readFile, readdir, stat } from 'node:fs/promises';
 import { basename, join, relative } from 'node:path';
@@ -15,7 +15,7 @@ export const assembleResourcePacks: AssemblePackCallback = async (
   config,
 ) => {
   const { deepMergeFiles } = await getPacks('resource_packs', config);
-  const zip = archiver('zip');
+  const zip = new ZipArchive();
   const writtenFiles = new Set<string>();
   const deepMergedEntryNames = new Set(deepMergeFiles.map(file => toZipEntryName(file.filepath)));
   let hasContent = false;
