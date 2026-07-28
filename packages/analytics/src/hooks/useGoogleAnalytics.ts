@@ -45,9 +45,14 @@ export function useGoogleAnalytics(measurementId: string): UseGoogleAnalytics {
     // Initialize dataLayer
     window.dataLayer = window.dataLayer || [];
 
-    // Define gtag function
-    window.gtag = function gtag(...args: unknown[]): void {
-      window.dataLayer?.push(args);
+    // Define gtag function.
+    // gtag.js only treats a dataLayer entry as a command when it is a real
+    // `arguments` object. Rest params would push a plain Array, which the
+    // container parses as a method path and silently discards — so `js` and
+    // `config` below would never run and no hits would be sent.
+    window.gtag = function gtag(): void {
+      // eslint-disable-next-line prefer-rest-params
+      window.dataLayer?.push(arguments);
     };
 
     // Initialize with current date
