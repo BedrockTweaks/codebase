@@ -6,6 +6,11 @@ import { join } from 'node:path';
 const GITHUB_REPO = 'BedrockTweaks/Files';
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
+// GitHub allows 60 unauthenticated calls an hour per IP. Without a cooldown a
+// failed lookup is retried on every pack generation, which burns the quota and
+// keeps the failure going.
+const FAILED_LOOKUP_RETRY_MS = 5 * 60 * 1000;
+
 interface GitHubRelease {
   tag_name: string;
 }
@@ -13,9 +18,11 @@ interface GitHubRelease {
 interface VersionCache {
   version: string;
   fetchedAt: number;
+  fromFallback: boolean;
 }
 
 let versionCache: VersionCache | null = null;
+let inFlightLookup: Promise<string> | null = null;
 
 const getVersionFilePath = (): string => {
   const config = getConfig();
@@ -42,31 +49,38 @@ const persistVersion = async (version: string): Promise<void> => {
   }
 };
 
-export async function fetchAppVersion(): Promise<string> {
-  const now = Date.now();
+const isFresh = (cache: VersionCache): boolean =>
+  Date.now() - cache.fetchedAt < (cache.fromFallback ? FAILED_LOOKUP_RETRY_MS : CACHE_TTL_MS);
 
-  if (versionCache !== null && now - versionCache.fetchedAt < CACHE_TTL_MS) {
-    return versionCache.version;
+const fallbackVersion = async (): Promise<string> => {
+  const persisted = await readPersistedVersion();
+
+  return persisted ?? versionCache?.version ?? 'unknown';
+};
+
+const lookupVersion = async (): Promise<string> => {
+  let response: Response;
+
+  try {
+    response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases/latest`);
+  } catch (error) {
+    console.warn('Failed to reach GitHub for version, using persisted fallback:', error);
+
+    const fallback = await fallbackVersion();
+
+    versionCache = { version: fallback, fetchedAt: Date.now(), fromFallback: true };
+
+    return fallback;
   }
 
-  const response = await fetch(
-    `https://api.github.com/repos/${GITHUB_REPO}/releases/latest`,
-  );
-
   if (!response.ok) {
-    console.warn(`Failed to fetch version from GitHub (status ${response.status}), using cached or persisted fallback`);
+    console.warn(`Failed to fetch version from GitHub (status ${response.status}), using persisted fallback`);
 
-    if (versionCache !== null) {
-      return versionCache.version;
-    }
+    const fallback = await fallbackVersion();
 
-    const persisted = await readPersistedVersion();
+    versionCache = { version: fallback, fetchedAt: Date.now(), fromFallback: true };
 
-    if (persisted !== null) {
-      return persisted;
-    }
-
-    return 'unknown';
+    return fallback;
   }
 
   // @ts-expect-error - tag_name is guaranteed by GitHub API
@@ -74,8 +88,24 @@ export async function fetchAppVersion(): Promise<string> {
 
   const version = data.tag_name.replace(/^v/, '');
 
-  versionCache = { version, fetchedAt: now };
+  versionCache = { version, fetchedAt: Date.now(), fromFallback: false };
   await persistVersion(version);
 
   return version;
+};
+
+/**
+ * One GitHub lookup per process per day, shared by every request. Concurrent
+ * callers join the lookup already running instead of starting their own.
+ */
+export async function fetchAppVersion(): Promise<string> {
+  if (versionCache !== null && isFresh(versionCache)) {
+    return versionCache.version;
+  }
+
+  inFlightLookup ??= lookupVersion().finally(() => {
+    inFlightLookup = null;
+  });
+
+  return inFlightLookup;
 }

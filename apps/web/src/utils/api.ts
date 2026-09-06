@@ -11,8 +11,6 @@ export function getApiUrl(publicOnly: boolean = false): string {
   return import.meta.env.VITE_API_URL!;
 }
 
-const GITHUB_REPO = 'BedrockTweaks/Files';
-
 /**
  * Fetch section data (resource-packs, addons, or crafting-tweaks)
  * @param section - The section endpoint name
@@ -55,26 +53,25 @@ export async function downloadPacks(
   return response.json();
 }
 
-interface GitHubRelease {
-  tag_name: string;
-  name: string;
-  published_at: string;
+interface VersionResponse {
+  version: string;
 }
 
 /**
- * Fetch the latest version from GitHub releases
+ * Fetch the latest released version.
+ *
+ * The API caches the upstream GitHub lookup for a day and serves it with a
+ * cache header, so visitors never call GitHub themselves and the release API's
+ * unauthenticated rate limit is never a factor.
  */
 export async function fetchLatestVersion(): Promise<string> {
-  const response = await fetch(
-    `https://api.github.com/repos/${GITHUB_REPO}/releases/latest`,
-  );
+  const response = await fetch(`${getApiUrl()}/api/version`);
 
   if (!response.ok) {
     throw new Error('Failed to fetch version');
   }
 
-  const data: GitHubRelease = await response.json();
+  const data: VersionResponse = await response.json();
 
-  // Remove 'v' prefix if present
-  return data.tag_name.replace(/^v/, '');
+  return data.version;
 }

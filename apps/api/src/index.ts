@@ -7,6 +7,7 @@ import { addonsApp } from './features/addons';
 import { craftingTweaksApp } from './features/crafting-tweaks';
 import { resourcePacksApp } from './features/resource-packs';
 import { initCacheDir } from './features/shared/cache';
+import { versionApp } from './features/version';
 
 const app = new OpenAPIHono();
 
@@ -20,6 +21,7 @@ app.use('*', cors());
 app.route('/', resourcePacksApp);
 app.route('/', addonsApp);
 app.route('/', craftingTweaksApp);
+app.route('/', versionApp);
 
 // OpenAPI documentation
 app.doc('/api/openapi.json', {
