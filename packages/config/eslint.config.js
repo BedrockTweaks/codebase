@@ -5,7 +5,7 @@ import tseslint from 'typescript-eslint';
 
 export default defineConfig([
   {
-    ignores: ['**/node_modules/**', '**/dist/**', '**/.turbo/**', '**/.wrangler/**', "**/.tanstack/**", '**/.output/**', '**/.nitro/**'],
+    ignores: ['**/node_modules/**', '**/dist/**', '**/dist-app/**', '**/.turbo/**', '**/.wrangler/**', "**/.tanstack/**", '**/.output/**', '**/.nitro/**'],
   },
 
   // Stylistic configuration factory (only for JS/TS files)
