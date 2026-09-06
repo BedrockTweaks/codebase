@@ -3,6 +3,7 @@ import { useGoogleAnalytics } from '@bt/analytics';
 import { Toaster } from '@/components/Toaster';
 import { ADSENSE_CONFIG } from '@/config/adsense';
 import { ANALYTICS_CONFIG } from '@/config/analytics';
+import { usePageViewTracking } from '@/hooks/usePageViewTracking';
 import { system } from '@/theming';
 import { Box, ChakraProvider, Flex } from '@chakra-ui/react';
 import { TanStackDevtools } from '@tanstack/react-devtools';
@@ -119,6 +120,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function RootDocument({ children }: { children: React.ReactNode }): JSX.Element {
   useGoogleAnalytics(ANALYTICS_CONFIG.measurementId);
+  usePageViewTracking();
 
   return (
     <html lang={'en'}>
