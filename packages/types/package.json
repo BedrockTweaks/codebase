@@ -10,12 +10,12 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "zod": "^4.4.3"
+    "zod": "^4.6.2"
   },
   "devDependencies": {
     "@bt/config": "workspace:*",
-    "@types/node": "^26.1.2",
-    "eslint": "^10.8.0",
-    "typescript": "^5.9.3"
+    "@types/node": "^26.5.1",
+    "eslint": "^10.10.0",
+    "typescript": "~6.0.3"
   }
 }
