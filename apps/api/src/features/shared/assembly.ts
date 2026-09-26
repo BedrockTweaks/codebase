@@ -52,6 +52,38 @@ export const pathExists = async (path: string): Promise<boolean> => {
  */
 const byAscendingPrecedence = (packsPaths: string[]): string[] => [...packsPaths].reverse();
 
+const SNOWED_GRASS_SIDE = 'textures/blocks/grass_side_snowed';
+
+// The snowed grass side is the final atlas variant, including when other packs
+// contribute additional biome colors to the same texture array.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const normalizeTerrainSnow = (terrainTexture: any): void => {
+  const textureData = terrainTexture?.texture_data;
+
+  if (!textureData || typeof textureData !== 'object' || Array.isArray(textureData)) {
+    return;
+  }
+
+  for (const [name, definition] of Object.entries(textureData)) {
+    if (!definition || typeof definition !== 'object' || Array.isArray(definition)) {
+      continue;
+    }
+
+    const entry = definition as { textures?: unknown };
+
+    if (!Array.isArray(entry.textures)) {
+      continue;
+    }
+
+    if (name === 'grass_side' || entry.textures.includes(SNOWED_GRASS_SIDE)) {
+      entry.textures = [
+        ...entry.textures.filter(texture => texture !== SNOWED_GRASS_SIDE),
+        SNOWED_GRASS_SIDE,
+      ];
+    }
+  }
+};
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const deepMergeJson = (filePath: string, packsPaths: string[], storageUrl: string, section: string): any => {
   let mergedJson = {};
@@ -69,6 +101,10 @@ export const deepMergeJson = (filePath: string, packsPaths: string[], storageUrl
 
       mergedJson = deepMerge(mergedJson, jsonContent);
     }
+  }
+
+  if (section === 'resource_packs' && toZipEntryName(filePath) === 'textures/terrain_texture.json') {
+    normalizeTerrainSnow(mergedJson);
   }
 
   return mergedJson;

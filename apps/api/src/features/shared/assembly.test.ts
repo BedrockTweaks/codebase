@@ -54,6 +54,27 @@ describe('merge precedence', () => {
 
     writePackFile('files/high', '/texts/en_US.lang', 'item.x=High');
     writePackFile('files/low', '/texts/en_US.lang', 'item.x=Low');
+
+    writePackFile('files/high', '/textures/terrain_texture.json', JSON.stringify({
+      texture_data: {
+        grass_side: { textures: [{ path: 'grass_high', overlay_color: '#ffbc58' }] },
+        mycelium_side: { textures: [{ path: 'mycelium_high' }] },
+        stone: { textures: ['stone_high'] },
+      },
+    }));
+    writePackFile('files/low', '/textures/terrain_texture.json', JSON.stringify({
+      texture_data: {
+        grass_side: { textures: [
+          { path: 'grass_low', overlay_color: '#79c05a' },
+          'textures/blocks/grass_side_snowed',
+        ] },
+        mycelium_side: { textures: [
+          { path: 'mycelium_low' },
+          'textures/blocks/grass_side_snowed',
+        ] },
+        stone: { textures: ['stone_low'] },
+      },
+    }));
   });
 
   afterAll(() => {
@@ -81,5 +102,39 @@ describe('merge precedence', () => {
   it('returns an empty result when no selected pack ships the file', () => {
     expect(deepMergeJson('/entity/creeper.entity.json', ['files/high'], storageUrl, section)).toEqual({});
     expect(mergeLang('/texts/fr_FR.lang', ['files/high'], storageUrl, section)).toBe('');
+  });
+
+  it.each([
+    ['files/high', 'files/low'],
+    ['files/low', 'files/high'],
+  ])('keeps the snowed side last for either pack order: %s first', (...packPaths) => {
+    const merged = deepMergeJson('/textures/terrain_texture.json', packPaths, storageUrl, section);
+    const grassTextures = merged.texture_data.grass_side.textures;
+
+    expect(grassTextures.slice(0, -1)).toEqual(expect.arrayContaining([
+      expect.objectContaining({ overlay_color: '#79c05a' }),
+      expect.objectContaining({ overlay_color: '#ffbc58' }),
+    ]));
+    expect(grassTextures).toHaveLength(3);
+    expect(grassTextures.at(-1)).toBe('textures/blocks/grass_side_snowed');
+    expect(merged.texture_data.mycelium_side.textures.at(-1))
+      .toBe('textures/blocks/grass_side_snowed');
+    expect(merged.texture_data.mycelium_side.textures).toHaveLength(3);
+  });
+
+  it('adds the snowed side to a standalone grass-side pack', () => {
+    const merged = deepMergeJson('/textures/terrain_texture.json', ['files/high'], storageUrl, section);
+
+    expect(merged.texture_data.grass_side.textures).toEqual([
+      { path: 'grass_high', overlay_color: '#ffbc58' },
+      'textures/blocks/grass_side_snowed',
+    ]);
+    expect(merged.texture_data.mycelium_side.textures).toEqual([{ path: 'mycelium_high' }]);
+  });
+
+  it('leaves other terrain texture arrays in merge order', () => {
+    const merged = deepMergeJson('/textures/terrain_texture.json', ['files/high', 'files/low'], storageUrl, section);
+
+    expect(merged.texture_data.stone.textures).toEqual(['stone_low', 'stone_high']);
   });
 });
