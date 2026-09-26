@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { runWhenIdle } from '../utils/defer';
 
 declare global {
   interface Window {
@@ -61,24 +62,31 @@ export function useGoogleAnalytics(measurementId: string): UseGoogleAnalytics {
     // Configure with measurement ID
     window.gtag('config', measurementId);
 
-    // Create and append the script
-    const script = document.createElement('script');
+    // The container is 180 KB and costs ~90 ms of main-thread time, which lands inside
+    // the initial render window if it is fetched immediately. dataLayer is already
+    // primed above, so commands queued before the script arrives still replay in order
+    // and nothing is lost by waiting for an idle main thread after `load`.
+    const cancel = runWhenIdle(() => {
+      const script = document.createElement('script');
 
-    script.id = scriptId;
-    script.async = true;
-    script.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
+      script.id = scriptId;
+      script.async = true;
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
 
-    script.onload = (): void => {
-      setIsLoaded(true);
-    };
+      script.onload = (): void => {
+        setIsLoaded(true);
+      };
 
-    script.onerror = (): void => {
-      console.error('Failed to load Google Analytics script');
-    };
+      script.onerror = (): void => {
+        console.error('Failed to load Google Analytics script');
+      };
 
-    document.head.appendChild(script);
+      document.head.appendChild(script);
+    });
 
     return (): void => {
+      cancel();
+
       // Cleanup: remove script if component unmounts
       const scriptToRemove = document.getElementById(scriptId);
 

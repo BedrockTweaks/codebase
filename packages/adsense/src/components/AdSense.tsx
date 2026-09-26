@@ -7,6 +7,12 @@ interface AdSenseProps {
   format?: 'auto' | undefined;
   responsive?: boolean;
   style?: React.CSSProperties;
+  /**
+   * Height held for the slot before Google fills it. Must be at least as tall as the
+   * tallest creative the slot serves, or the difference shifts the page when the ad
+   * arrives; a shorter creative only leaves whitespace.
+   */
+  reservedHeight?: number | string;
 }
 
 /**
@@ -26,8 +32,9 @@ export function AdSense({
   slot,
   format = 'auto',
   responsive = true,
-  style = { display: 'block' },
-}: AdSenseProps): JSX.Element | null {
+  reservedHeight = 280,
+  style,
+}: AdSenseProps): JSX.Element {
   const { clientId } = useAdSenseContext();
   const { isLoaded, pushAds } = useAdSense();
   const [isMounted, setIsMounted] = useState(false);
@@ -54,22 +61,23 @@ export function AdSense({
     pushAds();
   }, [isLoaded, isMounted, pushAds]);
 
-  // Don't render during SSR
-  if (!isMounted) {
-    return null;
-  }
-
+  // The box is rendered on the server and stays the same size through hydration and
+  // through the ad arriving, so none of those three steps moves the content below it.
+  // Only the <ins> is client-only: adsbygoogle.js mutates it, which would not survive
+  // hydration.
   return (
-    <div style={{ width: '100%', height: '100%' }}>
-      <ins
-        ref={insRef}
-        className={'adsbygoogle'}
-        style={style}
-        data-ad-client={clientId}
-        data-ad-slot={slot}
-        data-ad-format={format}
-        data-full-width-responsive={responsive.toString()}
-      />
+    <div style={{ display: 'block', width: '100%', minHeight: reservedHeight, ...style }}>
+      {isMounted && (
+        <ins
+          ref={insRef}
+          className={'adsbygoogle'}
+          style={{ display: 'block', width: '100%' }}
+          data-ad-client={clientId}
+          data-ad-slot={slot}
+          data-ad-format={format}
+          data-full-width-responsive={responsive.toString()}
+        />
+      )}
     </div>
   );
 }

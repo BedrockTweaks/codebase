@@ -1,4 +1,5 @@
 import { createContext, JSX, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
+import { runWhenIdle } from '../utils/defer';
 
 interface AdSenseContextValue {
   clientId: string;
@@ -42,6 +43,11 @@ export function AdSenseProvider({ clientId, children }: AdSenseProviderProps): J
   // The provider owns the script element. This used to live in useAdSense, which three
   // components call, so each of them created-or-adopted the same element *and* removed
   // it on unmount: the first slot to unmount tore the script out from under the others.
+  //
+  // Injection waits for an idle main thread after `load`: adsbygoogle.js pulls in the
+  // consent dialog, which paints over the page and otherwise becomes the Largest
+  // Contentful Paint. Slots reserve their space up front, so arriving late costs no
+  // layout stability.
   useEffect(() => {
     const existing = document.getElementById(SCRIPT_ID);
 
@@ -51,26 +57,33 @@ export function AdSenseProvider({ clientId, children }: AdSenseProviderProps): J
       return;
     }
 
-    const script = document.createElement('script');
+    return runWhenIdle(() => {
+      if (document.getElementById(SCRIPT_ID)) {
+        setIsLoaded(true);
 
-    script.id = SCRIPT_ID;
-    script.async = true;
-    script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${clientId}`;
-    script.crossOrigin = 'anonymous';
+        return;
+      }
 
-    script.onload = (): void => {
-      setIsLoaded(true);
-    };
+      const script = document.createElement('script');
 
-    script.onerror = (): void => {
-      console.error('Failed to load AdSense script');
-    };
+      script.id = SCRIPT_ID;
+      script.async = true;
+      script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${clientId}`;
+      script.crossOrigin = 'anonymous';
 
-    document.head.appendChild(script);
+      script.onload = (): void => {
+        setIsLoaded(true);
+      };
 
-    // Deliberately no cleanup: adsbygoogle.js has already patched window.adsbygoogle by
-    // the time it runs, so removing the tag undoes nothing and only breaks consumers
-    // that mount later.
+      script.onerror = (): void => {
+        console.error('Failed to load AdSense script');
+      };
+
+      // The tag itself is never removed: adsbygoogle.js has already patched
+      // window.adsbygoogle by the time it runs, so removing it undoes nothing and only
+      // breaks consumers that mount later.
+      document.head.appendChild(script);
+    });
   }, [clientId]);
 
   const value = useMemo(() => ({ clientId, isLoaded }), [clientId, isLoaded]);

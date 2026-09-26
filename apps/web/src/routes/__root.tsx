@@ -131,13 +131,25 @@ function RootDocument({ children }: { children: React.ReactNode }): JSX.Element 
         <ChakraProvider value={system}>
           <AdSenseProvider clientId={ADSENSE_CONFIG.clientId}>
             <AdSenseAutoAds />
-            <Flex
-              direction={'column'}
-              minH={'100vh'}
+            {/* The background is its own fixed layer rather than a background-attachment:
+                fixed on the scrolling element. Both pin the image to the viewport, but
+                fixed attachment repaints it on every scroll frame, while a fixed element
+                is composited once and left alone. */}
+            <Box
+              position={'fixed'}
+              inset={0}
+              zIndex={0}
+              pointerEvents={'none'}
               bgImage={'url(/assets/images/background.png)'}
               bgSize={'cover'}
               bgPos={'center'}
-              bgAttachment={'fixed'}
+            />
+
+            <Flex
+              direction={'column'}
+              minH={'100vh'}
+              position={'relative'}
+              zIndex={1}
             >
               <Header />
               <Box flex={1}>

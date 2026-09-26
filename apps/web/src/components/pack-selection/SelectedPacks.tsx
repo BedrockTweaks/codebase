@@ -1,4 +1,4 @@
-import { usePackSelection } from '@/contexts/PackSelectionContext';
+import { usePackSelectionActions, useSelectedPacks } from '@/contexts/PackSelectionContext';
 import { CategorySelection, DownloadRequest, SECTION_NAME_MAP } from '@/models';
 import { Button, Input, Link } from '@/theming/components';
 import { generatePackName, resolveDownloadFileName } from '@/utils/packs';
@@ -25,7 +25,8 @@ interface SelectedPacksProps {
 export function SelectedPacks({ compatibleVersions, onDownload, onClose }: SelectedPacksProps): JSX.Element {
   const [packName, setPackName] = useState<string | undefined>();
 
-  const { section, selectedPacks } = usePackSelection();
+  const { section } = usePackSelectionActions();
+  const selectedPacks = useSelectedPacks();
 
   const generatedPackName = useMemo(() => generatePackName(section, packName), [section, packName]);
 

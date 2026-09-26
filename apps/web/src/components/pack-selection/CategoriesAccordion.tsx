@@ -1,5 +1,5 @@
-import { usePackSelection } from '@/contexts';
-import { Category, SEVERITY_COLOR_MAP } from '@/models';
+import { useCategorySelection, usePackSelectionActions } from '@/contexts';
+import { Category, Pack, SEVERITY_COLOR_MAP } from '@/models';
 import { Accordion, Box, Grid, Image, Text, useAccordionItemContext, VStack } from '@chakra-ui/react';
 import { JSX, ReactNode, useState } from 'react';
 import {
@@ -66,7 +66,7 @@ interface ToggleAllButtonProps {
 
 function ToggleAllButton({ categoryId }: ToggleAllButtonProps): JSX.Element | null {
   const item = useAccordionItemContext();
-  const { toggleAll } = usePackSelection();
+  const { toggleAll } = usePackSelectionActions();
 
   const handleToggleAll = (e: React.MouseEvent): void => {
     e.stopPropagation();
@@ -107,6 +107,45 @@ function ToggleAllButton({ categoryId }: ToggleAllButtonProps): JSX.Element | nu
   );
 }
 
+interface PackGridProps {
+  categoryId: string;
+  packs: Pack[];
+  eager?: boolean;
+}
+
+/**
+ * The only subscriber to the selection state in the accordion. It re-renders on every
+ * toggle, but it does no styling of its own, and the memoised cards below it skip the
+ * re-render unless their own `selected` changed.
+ */
+function PackGrid({ categoryId, packs, eager }: PackGridProps): JSX.Element {
+  const selectedIds = useCategorySelection(categoryId);
+
+  return (
+    <Grid
+      templateColumns={{
+        base: 'repeat(1, 1fr)',
+        sm: 'repeat(2, 1fr)',
+        md: 'repeat(3, 1fr)',
+        lg: 'repeat(4, 1fr)',
+        xl: 'repeat(6, 1fr)',
+      }}
+      gap={2}
+      pb={'4'}
+    >
+      {packs.map(pack => (
+        <PackItem
+          key={pack.id}
+          pack={pack}
+          categoryId={categoryId}
+          selected={selectedIds?.has(pack.id) ?? false}
+          eager={eager}
+        />
+      ))}
+    </Grid>
+  );
+}
+
 function CategoryNodeItem({ node, eager }: CategoryNodeProps): JSX.Element {
   const children = Array.from(node.children.values());
   const hasPacks = node.category && node.category.packs.length > 0;
@@ -137,26 +176,11 @@ function CategoryNodeItem({ node, eager }: CategoryNodeProps): JSX.Element {
               )}
 
               {hasPacks && node.category && (
-                <Grid
-                  templateColumns={{
-                    base: 'repeat(1, 1fr)',
-                    sm: 'repeat(2, 1fr)',
-                    md: 'repeat(3, 1fr)',
-                    lg: 'repeat(4, 1fr)',
-                    xl: 'repeat(6, 1fr)',
-                  }}
-                  gap={2}
-                  pb={'4'}
-                >
-                  {node.category.packs.map(pack => (
-                    <PackItem
-                      key={pack.id}
-                      pack={pack}
-                      categoryId={node.category!.id}
-                      eager={eager}
-                    />
-                  ))}
-                </Grid>
+                <PackGrid
+                  categoryId={node.category.id}
+                  packs={node.category.packs}
+                  eager={eager}
+                />
               )}
 
               {hasChildren && <CategoryNodeAccordion node={node} />}

@@ -1,8 +1,8 @@
-import { usePackSelection } from '@/contexts';
+import { usePackSelectionActions } from '@/contexts';
 import { Pack, SEVERITY_COLOR_MAP } from '@/models';
 import { getApiUrl } from '@/utils/api';
 import { Box, Image, Text, VStack } from '@chakra-ui/react';
-import { JSX } from 'react';
+import { JSX, memo } from 'react';
 
 function getPackIconUrl(section: string, categoryId: string, packId: string, extension: 'png' | 'gif'): string {
   // Convert section format: 'resource-packs' -> 'resource_packs'
@@ -14,14 +14,19 @@ function getPackIconUrl(section: string, categoryId: string, packId: string, ext
 interface PackItemProps {
   pack: Pack;
   categoryId: string;
+  selected: boolean;
   /** Eager load the icon: only worth it for categories open on first paint. */
   eager?: boolean;
 }
 
-export function PackItem({ pack, categoryId, eager }: PackItemProps): JSX.Element {
-  const { isSelected, togglePack, section } = usePackSelection();
-
-  const selected = isSelected(categoryId, pack.id);
+/**
+ * Memoised, and takes `selected` as a prop rather than reading it from the selection
+ * state: a category renders up to 58 of these, and recomputing the Chakra styles for
+ * all of them on every click is what made the interaction slow. Only the card whose
+ * `selected` actually flipped re-renders now.
+ */
+function PackItemComponent({ pack, categoryId, selected, eager }: PackItemProps): JSX.Element {
+  const { togglePack, section } = usePackSelectionActions();
 
   const handleClick = (): void => {
     if (pack.disabled) {
@@ -135,3 +140,5 @@ export function PackItem({ pack, categoryId, eager }: PackItemProps): JSX.Elemen
     </Box>
   );
 }
+
+export const PackItem = memo(PackItemComponent);

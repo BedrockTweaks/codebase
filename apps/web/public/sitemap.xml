@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://bedrocktweaks.com/</loc>
+    <loc>https://bedrocktweaks.net/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://bedrocktweaks.com/resource-packs</loc>
+    <loc>https://bedrocktweaks.net/resource-packs</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://bedrocktweaks.com/addons</loc>
+    <loc>https://bedrocktweaks.net/addons</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://bedrocktweaks.com/crafting-tweaks</loc>
+    <loc>https://bedrocktweaks.net/crafting-tweaks</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://bedrocktweaks.com/privacy</loc>
+    <loc>https://bedrocktweaks.net/privacy</loc>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://bedrocktweaks.com/terms</loc>
+    <loc>https://bedrocktweaks.net/terms</loc>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>

@@ -1,5 +1,6 @@
 import { InternalServerErrorPage, NotFoundPage } from '@/components/Error';
 import { SENTRY_DENY_URLS, SENTRY_IGNORE_ERRORS, dropUnactionableEvent } from '@/config/sentry';
+import { getAnonymousId } from '@/utils/anonymousId';
 import * as Sentry from '@sentry/tanstackstart-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createRouter } from '@tanstack/react-router';
@@ -43,6 +44,11 @@ export const getRouter = () => {
       denyUrls: SENTRY_DENY_URLS,
       beforeSend: dropUnactionableEvent,
     });
+
+    // Without a user, every issue reports zero users impacted and event counts alone
+    // cannot distinguish one visitor in a reload loop from a site-wide outage. The id
+    // is random and carries nothing about who the visitor is.
+    Sentry.setUser({ id: getAnonymousId() });
   }
 
   return router;
